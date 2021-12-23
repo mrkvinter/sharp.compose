@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Base", "SharpCompose.Base\SharpCompose.Base.csproj", "{2A0A6489-9906-42BC-930A-4028B65804D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSharpCompose", "TestSharpCompose\TestSharpCompose.csproj", "{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A0A6489-9906-42BC-930A-4028B65804D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A0A6489-9906-42BC-930A-4028B65804D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A0A6489-9906-42BC-930A-4028B65804D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A0A6489-9906-42BC-930A-4028B65804D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
