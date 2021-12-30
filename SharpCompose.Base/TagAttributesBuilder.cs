@@ -51,7 +51,7 @@ public class TagAttributesBuilder : BaseAttributesBuilder
             composer.AddAttribute("id", id);
         
         if (classes?.Length > 0)
-            composer.AddAttribute("class", string.Join(", ", classes));
+            composer.AddAttribute("class", string.Join(" ", classes));
 
         if (href != null)
             composer.AddAttribute("href", href);
