@@ -1,22 +1,78 @@
 namespace SharpCompose.Base;
 
-public static class Remember
+public static class RememberSavable
 {
-    public static Remembered.ValueRemembered<T> Get<T>(Func<T> creator)
+    public static ValueRemembered<T> Get<T>(Func<T> creator)
     {
-        if (Composer.Instance.Remembered.HasNextRemembered<T>())
+        var current = Composer.Instance.Current!;
+        if (current.RememberedSavable.TryGetNextRemembered<T>(out var result))
         {
-            return Composer.Instance.Remembered.NextRemembered<T>();
+            return result;
         }
 
         var value = creator();
 
-        return Composer.Instance.Remembered.AddRemembered(value);
+        return current.RememberedSavable.AddRemembered(value);
     }
 
-    public static Remembered.ValueRemembered<T> Get<T>(T value) where T : struct
+    public static ValueRemembered<T> Get<T>(T value) where T : struct
     {
         return Get(() => value);
+    }
+}
+
+public static class Remember
+{
+    public static ValueRemembered<T> Get<T>(Func<T> creator)
+    {
+        var current = Composer.Instance.Current!;
+        if (current.Remembered.TryGetNextRemembered<T>(out var result))
+        {
+            return result;
+        }
+
+        var value = creator();
+
+        return current.Remembered.AddRemembered(value);
+    }
+
+    private static async Task<ValueRemembered<T>> GetAsync<T>(Func<Task<T>> creator)
+    {
+        var current = Composer.Instance.Current!;
+        if (current.Remembered.TryGetNextRemembered<T>(out var result))
+        {
+            return result;
+        }
+
+        var value = await creator();
+
+        return current.Remembered.AddRemembered(value);
+    }
+
+    public static ValueRemembered<T> Get<T>(T value) where T : struct
+    {
+        return Get(() => value);
+    }
+
+    public static void LaunchedEffect(Action action)
+    {
+        var _ = Get<Unit>(() =>
+        {
+            action();
+
+            return default;
+        });
+    }
+
+    public static async void LaunchedEffect(Func<Task> action)
+    {
+        var _ = await GetAsync<Unit>(async () =>
+        {
+            await action();
+            // Composer.Instance.DeferredActions.Add(action);
+
+            return default;
+        });
     }
 
     public static void DisposeEffect(Action action)
@@ -39,4 +95,7 @@ public static class Remember
         }
     }
 }
+
+internal struct Unit
+{
 }
