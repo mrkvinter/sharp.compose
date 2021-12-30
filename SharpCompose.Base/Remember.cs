@@ -18,4 +18,25 @@ public static class Remember
     {
         return Get(() => value);
     }
+
+    public static void DisposeEffect(Action action)
+    {
+        var _ = Get(() => new DisposableEffect(action));
+    }
+
+    internal class DisposableEffect : IDisposable
+    {
+        private readonly Action disposable;
+
+        public DisposableEffect(Action disposable)
+        {
+            this.disposable = disposable;
+        }
+
+        public void Dispose()
+        {
+            disposable.Invoke();
+        }
+    }
+}
 }
