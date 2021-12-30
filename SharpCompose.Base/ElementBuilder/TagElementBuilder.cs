@@ -9,6 +9,11 @@ internal class TagElementBuilder : IElementBuilder
         Tag = tag;
     }
 
+    public override string ToString()
+    {
+        return $"{nameof(TagElementBuilder)} <{Tag}>";
+    }
+
     private static IElementBuilder CreateBuilder(string tag) => new TagElementBuilder(tag);
 
     public static readonly IElementBuilder Div = CreateBuilder("div");
@@ -25,4 +30,9 @@ internal class TagElementBuilder : IElementBuilder
     public static readonly IElementBuilder Th = CreateBuilder("th");
     public static readonly IElementBuilder Td = CreateBuilder("td");
     public static readonly IElementBuilder Tbody = CreateBuilder("tbody");
+    public static readonly IElementBuilder Ul = CreateBuilder("ul");
+    public static readonly IElementBuilder Li = CreateBuilder("li");
+    public static readonly IElementBuilder Article = CreateBuilder("article");
+    public static readonly IElementBuilder Main = CreateBuilder("main");
+    public static readonly IElementBuilder I = CreateBuilder("i");
 }

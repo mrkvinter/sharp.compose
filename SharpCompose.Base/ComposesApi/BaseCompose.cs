@@ -10,11 +10,11 @@ public static class BaseCompose
         TextElementBuilder elementBuilder)
     {
         
-        void FakeFactory(Composer composer)
+        static void FakeFactory(Composer composer)
         {
         }
 
-        Composer.Instance.StartScope(FakeFactory, null, elementBuilder);
+        Composer.Instance.StartScope(FakeFactory, elementBuilder);
         Composer.Instance.StopScope();
     }
 }
