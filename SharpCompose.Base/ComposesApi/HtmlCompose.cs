@@ -30,6 +30,14 @@ public static class HtmlCompose
         Action<CommonTagAttributesBuilder>? attributes = default,
         Action? child = default) => TagElement(TagElementBuilder.H1, attributes, child);
 
+    public static void H2(
+        Action<CommonTagAttributesBuilder>? attributes = default,
+        Action? child = default) => TagElement(TagElementBuilder.H2, attributes, child);
+
+    public static void H3(
+        Action<CommonTagAttributesBuilder>? attributes = default,
+        Action? child = default) => TagElement(TagElementBuilder.H3, attributes, child);
+
     public static void P(
         Action<CommonTagAttributesBuilder>? attributes = default,
         Action? child = default) => TagElement(TagElementBuilder.P, attributes, child);
@@ -102,4 +110,17 @@ public static class HtmlCompose
     public static void I(
         Action<CommonTagAttributesBuilder>? attributes = default,
         Action? child = default) => TagElement(TagElementBuilder.I, attributes, child);
+
+    public static void Strong(
+        Action<CommonTagAttributesBuilder>? attributes = default,
+        Action? child = default) => TagElement(TagElementBuilder.Strong, attributes, child);
+
+    public static void TextInput(
+        ValueRemembered<string> value,
+        Action<CommonTagAttributesBuilder>? attributes = default) => TagElement<CommonTagAttributesBuilder>(TagElementBuilder.Input, atr =>
+    {
+        void OnInput(ChangeEventArgs newValue) => value.Value = newValue.Value?.ToString() ?? string.Empty;
+        atr.OnInput(OnInput);
+        attributes?.Invoke(atr);
+    }, () => { });
 }

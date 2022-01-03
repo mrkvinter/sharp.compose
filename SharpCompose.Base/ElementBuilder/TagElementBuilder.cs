@@ -18,11 +18,14 @@ internal class TagElementBuilder : IElementBuilder
 
     public static readonly IElementBuilder Div = CreateBuilder("div");
     public static readonly IElementBuilder H1 = CreateBuilder("h1");
+    public static readonly IElementBuilder H2 = CreateBuilder("h2");
+    public static readonly IElementBuilder H3 = CreateBuilder("h3");
     public static readonly IElementBuilder P = CreateBuilder("p");
     public static readonly IElementBuilder A = CreateBuilder("a");
     public static readonly IElementBuilder Span = CreateBuilder("span");
     public static readonly IElementBuilder Nav = CreateBuilder("nav");
     public static readonly IElementBuilder Button = CreateBuilder("button");
+    public static readonly IElementBuilder Input = CreateBuilder("input");
     public static readonly IElementBuilder Em = CreateBuilder("em");
     public static readonly IElementBuilder Table = CreateBuilder("table");
     public static readonly IElementBuilder Thead = CreateBuilder("thead");
@@ -35,4 +38,5 @@ internal class TagElementBuilder : IElementBuilder
     public static readonly IElementBuilder Article = CreateBuilder("article");
     public static readonly IElementBuilder Main = CreateBuilder("main");
     public static readonly IElementBuilder I = CreateBuilder("i");
+    public static readonly IElementBuilder Strong = CreateBuilder("strong");
 }
