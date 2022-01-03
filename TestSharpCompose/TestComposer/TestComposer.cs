@@ -8,17 +8,17 @@ namespace TestSharpCompose.TestComposer;
 public class TestComposer : Composer
 {
     private HtmlNode? current;
-    private Action<string, object?>? attributeBuilder;
+    private Action<IReadOnlyDictionary<string, object>>? attributeBuilder;
 
     public HtmlNode Build()
     {
-        void AddAttr(string name, object? value) => AddAttribute(name, value, current);
+        void AddAttr(IReadOnlyDictionary<string, object> attrs) => BuildAttributes(attrs, current!);
 
         attributeBuilder += AddAttr;
 
         var root = new HtmlNode();
 
-        foreach (var scope in Root.Child)
+        foreach (var scope in Root!.Child)
         {
             BuildNode(scope, root);
         }
@@ -50,7 +50,7 @@ public class TestComposer : Composer
         {
             node.Tag = tagElementBuilder.Tag;
             current = node;
-            scope.Factory(this);
+            scope.AttributeBuilder(this);
         }
     }
 
@@ -74,9 +74,18 @@ public class TestComposer : Composer
         }
     }
 
-    public override void AddAttribute<T>(string name, T value)
+
+    public override void BuildAttributes(IReadOnlyDictionary<string, object> attributes)
     {
-        attributeBuilder?.Invoke(name, value);
+        attributeBuilder?.Invoke(attributes);
+    }
+    
+    private void BuildAttributes(IReadOnlyDictionary<string, object> attributes, HtmlNode node)
+    {
+        foreach (var (attributeName, value) in attributes)
+        {
+            AddAttribute(attributeName, value, node);
+        }
     }
 }
 

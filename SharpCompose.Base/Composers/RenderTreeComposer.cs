@@ -6,7 +6,7 @@ namespace SharpCompose.Base.Composers;
 public class RenderTreeComposer : Composer
 {
     private int sequence;
-    private Action<string, object?>? attributeBuilder;
+    private Action<IReadOnlyDictionary<string, object>>? attributeBuilder;
 
     public void Build(RenderTreeBuilder builder)
     {
@@ -15,7 +15,7 @@ public class RenderTreeComposer : Composer
 
         sequence = 0;
 
-        void AddAttr(string name, object? value) => AddAttribute(name, value, builder);
+        void AddAttr(IReadOnlyDictionary<string, object> attr) => AddAttribute(attr, builder);
 
         attributeBuilder += AddAttr;
 
@@ -47,7 +47,7 @@ public class RenderTreeComposer : Composer
         else if (scope.ElementBuilder is TagElementBuilder tagElementBuilder)
         {
             builder.OpenElement(sequence++, tagElementBuilder.Tag);
-            scope.Factory(this);
+            scope.AttributeBuilder(this);
         }
     }
 
@@ -77,8 +77,17 @@ public class RenderTreeComposer : Composer
             throw new NotImplementedException($"Unknown type value: {value.GetType()}");
     }
 
-    public override void AddAttribute<T>(string name, T value)
+    private void AddAttribute(IReadOnlyDictionary<string, object> attrs, RenderTreeBuilder builder)
     {
-        attributeBuilder?.Invoke(name, value);
+        foreach (var (attributeName, value) in attrs)
+        {
+            AddAttribute(attributeName, value, builder);
+        }
+    }
+
+    public override void BuildAttributes(IReadOnlyDictionary<string, object> attributes)
+    {
+        attributeBuilder?.Invoke(attributes);
+
     }
 }

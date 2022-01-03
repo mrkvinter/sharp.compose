@@ -47,15 +47,15 @@ public abstract class Composer
         return Root;
     }
 
-    public abstract void AddAttribute<T>(string name, T value);
+    public abstract void BuildAttributes(IReadOnlyDictionary<string, object> attributes);
 
-    public void StartScope(Action<Composer> render, IElementBuilder? meta = default)
+    public void StartScope(Action<Composer> attributeBuilder, IElementBuilder? meta = default)
     {
         Scope Creator()
         {
             var createdScope = new Scope
             {
-                Factory = render,
+                AttributeBuilder = attributeBuilder,
                 ElementBuilder = meta
             };
 
@@ -90,7 +90,7 @@ public abstract class Composer
     {
         private readonly List<Scope> child = new();
 
-        public Action<Composer> Factory { get; init; } = default!;
+        public Action<Composer> AttributeBuilder { get; init; } = default!;
 
         public IReadOnlyCollection<Scope> Child => child;
 
