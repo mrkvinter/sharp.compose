@@ -1,6 +1,6 @@
 namespace SharpCompose.Base;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class ComposeAttribute : Attribute
+public class ComposableAttribute : Attribute
 {
 }

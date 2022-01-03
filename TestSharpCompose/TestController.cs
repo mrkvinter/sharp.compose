@@ -10,7 +10,7 @@ namespace TestSharpCompose;
 
 public class TestController
 {
-    [Compose]
+    [Composable]
     public static void SimpleCompose() =>
         Div(attr =>
         {
@@ -22,7 +22,7 @@ public class TestController
             P(child: () => Text("Article"));
         });
 
-    [Compose]
+    [Composable]
     public static void WithStateCompose() =>
         Div(attr =>
         {
@@ -37,7 +37,7 @@ public class TestController
             Button(() => counter.Value++, atr => atr.Id("button"));
         });
 
-    [Compose]
+    [Composable]
     public static void ComplexCompose() =>
         Div(attr =>
         {
@@ -52,7 +52,7 @@ public class TestController
             }
         });
 
-    [Compose]
+    [Composable]
     public static void FetchData_ScopedState()
     {
         var data = Remember.Get(Array.Empty<int>);
@@ -72,7 +72,7 @@ public class TestController
         });
     }
 
-    [Compose]
+    [Composable]
     public static void FetchData_NoScopedState()
     {
         var data = Remember.Get(Array.Empty<int>);
