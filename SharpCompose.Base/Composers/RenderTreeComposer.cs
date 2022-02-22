@@ -88,6 +88,5 @@ public class RenderTreeComposer : Composer
     public override void BuildAttributes(IReadOnlyDictionary<string, object> attributes)
     {
         attributeBuilder?.Invoke(attributes);
-
     }
 }

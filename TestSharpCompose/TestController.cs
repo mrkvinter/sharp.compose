@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using SharpCompose.Base;
+using SharpCompose.Base.Remember;
 using static SharpCompose.Base.ComposesApi.BaseCompose;
 using static SharpCompose.Base.ComposesApi.HtmlCompose;
 
@@ -56,10 +56,7 @@ public class TestController
     public static void FetchData_ScopedState()
     {
         var data = Remember.Get(Array.Empty<int>);
-        Remember.LaunchedEffect(async () =>
-        {
-            data.Value = await GetData() ?? Array.Empty<int>();
-        });
+        Remember.LaunchedEffect(async () => { data.Value = await GetData() ?? Array.Empty<int>(); });
 
         P(child: () => Text("paragraph"));
 
@@ -80,11 +77,27 @@ public class TestController
 
         P(child: () => Text("paragraph"));
 
-        if (data.Value.Length == 0)
+        // VoidScope(() => {
+        if (data.Value.Length == 0) //
             P(atr => atr.Id("no_data"), () => Text("not data"));
         else
             P(atr => atr.Id("data"), () => Text(string.Join(" ", data)));
+        // });
     }
+
+    public static void Counter() => Composable(() =>
+    {
+        var counter = Remember.Get(0);
+
+        H1(child: () => Text("Counter"));
+
+        Div(child: () =>
+        {
+            Button(() => counter.Value++,
+                attr => attr.Class("btn", "btn-primary"),
+                () => Text($"Counter: {counter.Value}"));
+        });
+    });
 
     private static async Task<int[]?> GetData()
     {

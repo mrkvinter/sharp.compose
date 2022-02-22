@@ -22,6 +22,21 @@ public static class HtmlCompose
         Composer.Instance.StopScope();
     }
 
+    private static void TagElement<T>(
+        IElementBuilder elementBuilder,
+        Action<T>? attributes) where T : BaseAttributesBuilder, new()
+    {
+        void Factory(Composer composer)
+        {
+            var builder = new T();
+            attributes?.Invoke(builder);
+            composer.BuildAttributes(builder.Attributes);
+        }
+
+        Composer.Instance.StartScope(Factory, elementBuilder);
+        Composer.Instance.StopScope();
+    }
+
     public static void Div(
         Action<CommonTagAttributesBuilder>? attributes = default,
         Action? child = default) => TagElement(TagElementBuilder.Div, attributes, child);
@@ -117,10 +132,11 @@ public static class HtmlCompose
 
     public static void TextInput(
         ValueRemembered<string> value,
-        Action<CommonTagAttributesBuilder>? attributes = default) => TagElement<CommonTagAttributesBuilder>(TagElementBuilder.Input, atr =>
-    {
-        void OnInput(ChangeEventArgs newValue) => value.Value = newValue.Value?.ToString() ?? string.Empty;
-        atr.OnInput(OnInput);
-        attributes?.Invoke(atr);
-    }, () => { });
+        Action<CommonTagAttributesBuilder>? attributes = default) => TagElement<CommonTagAttributesBuilder>(
+        TagElementBuilder.Input, atr =>
+        {
+            void OnInput(ChangeEventArgs newValue) => value.Value = newValue.Value?.ToString() ?? string.Empty;
+            atr.OnInput(OnInput);
+            attributes?.Invoke(atr);
+        });
 }

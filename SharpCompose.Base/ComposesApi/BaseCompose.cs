@@ -11,6 +11,13 @@ public static class BaseCompose
         Composer.Instance.StopScope();
     }
 
+    public static void Composable(Action content)
+    {
+        Composer.Instance.StartScope(FakeFactory);
+        content.Invoke();
+        Composer.Instance.StopScope();
+    }
+
     public static void Text(string text) => TextElement(new TextElementBuilder {Text = text});
 
     private static void TextElement(

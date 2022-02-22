@@ -1,54 +1,38 @@
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 
 namespace SharpCompose.Base;
 
-public abstract class BaseAttributesBuilder
+public class ATagAttributesBuilder : BaseTagAttributesBuilder<ATagAttributesBuilder>
 {
-    protected readonly Dictionary<string, object> attributes = new();
-
-    public IReadOnlyDictionary<string, object> Attributes => attributes;
+    public ATagAttributesBuilder Href(string href) => Attr("href", href);
 }
 
-public class TagAttributesBuilder : BaseAttributesBuilder
+public class CommonTagAttributesBuilder : BaseTagAttributesBuilder<CommonTagAttributesBuilder>
 {
-    public void Id(string id)
+}
+
+public class BaseTagAttributesBuilder<T> : BaseAttributesBuilder
+    where T : BaseTagAttributesBuilder<T>
+{
+    protected T Attr(string name, object value)
     {
-        attributes["id"] = id;
+        attributes[name] = value;
+
+        return (T) this;
     }
 
-    public void Class(params string[] classes)
-    {
-        attributes["class"] = string.Join(" ", classes);
-    }
+    public T Id(string id) => Attr("id", id);
 
-    public void Href(string href)
-    {
-        attributes["href"] = href;
-    }
+    public T Class(params string[] classes) => Attr("class", string.Join(" ", classes));
 
     //todo: make styleBuilder here
-    public void Style(string style)
-    {
-        attributes["style"] = style;
-    }
+    public T Style(string style) => Attr("style", style);
 
-    public void OnClick(Action onClickAction)
-    {
-        attributes["onclick"] = onClickAction;
-    }
+    public T OnClick(Action onClick) => Attr("onclick", onClick);
 
-    public void OnChange(Action<ChangeEventArgs> onChangeAction)
-    {
-        attributes["onchange"] = onChangeAction;
-    }
+    public T OnChange(Action<ChangeEventArgs> onChange) => Attr("onchange", onChange);
 
-    public void OnInput(Action<ChangeEventArgs> onInputAction)
-    {
-        attributes["oninput"] = onInputAction;
-    }
+    public T OnInput(Action<ChangeEventArgs> onInput) => Attr("oninput", onInput);
 
-    public void AreaHidden(bool areaHidden)
-    {
-        attributes["area-hidden"] = areaHidden;
-    }
+    public T AreaHidden(bool areaHidden) => Attr("area-hidden", areaHidden);
 }

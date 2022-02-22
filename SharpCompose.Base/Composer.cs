@@ -5,7 +5,7 @@ namespace SharpCompose.Base;
 
 public abstract class Composer
 {
-    public static Composer Instance = new RenderTreeComposer();
+    public static Composer Instance { get; internal set; } = new RenderTreeComposer();
 
     private readonly Stack<Scope> scopes = new();
 
@@ -16,8 +16,6 @@ public abstract class Composer
     public event Action? RecomposeEvent;
 
     public bool Composing { get; private set; }
-
-    internal List<Func<Task>> DeferredActions = new();
 
     internal static void Recompose()
     {
@@ -68,7 +66,7 @@ public abstract class Composer
             return createdScope;
         }
 
-        var scope = Remember.Get(Creator).Value!;
+        var scope = Remember.Remember.Get(Creator).Value;
 
         if (scope.Changed)
         {
@@ -98,7 +96,7 @@ public abstract class Composer
 
         public readonly Remembered Remembered = new();
 
-        public Remembered RememberedSavable = new();
+        public readonly Remembered RememberedSavable = new();
 
         public string Name { get; internal set; } = "";
         public bool Changed { get; set; }
@@ -109,7 +107,7 @@ public abstract class Composer
 
             foreach (var value in Remembered.RememberedValues)
             {
-                if (value is Remember.DisposableEffect disposableEffect)
+                if (value is Remember.Remember.DisposableEffect disposableEffect)
                 {
                     disposableEffect.Dispose();
                 }

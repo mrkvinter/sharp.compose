@@ -1,25 +1,4 @@
-namespace SharpCompose.Base;
-
-public static class RememberSavable
-{
-    public static ValueRemembered<T> Get<T>(Func<T> creator)
-    {
-        var current = Composer.Instance.Current!;
-        if (current.RememberedSavable.TryGetNextRemembered<T>(out var result))
-        {
-            return result;
-        }
-
-        var value = creator();
-
-        return current.RememberedSavable.AddRemembered(value);
-    }
-
-    public static ValueRemembered<T> Get<T>(T value) where T : struct
-    {
-        return Get(() => value);
-    }
-}
+namespace SharpCompose.Base.Remember;
 
 public static class Remember
 {
@@ -64,15 +43,14 @@ public static class Remember
         });
     }
 
-    public static async void LaunchedEffect(Func<Task> action)
+    public static void LaunchedEffect(Func<Task> action)
     {
-        var _ = await GetAsync<Unit>(async () =>
+        GetAsync<Unit>(async () =>
         {
             await action();
-            // Composer.Instance.DeferredActions.Add(action);
-
+    
             return default;
-        });
+        }).ConfigureAwait(false);
     }
 
     public static void DisposeEffect(Action action)
@@ -94,8 +72,4 @@ public static class Remember
             disposable.Invoke();
         }
     }
-}
-
-internal struct Unit
-{
 }
