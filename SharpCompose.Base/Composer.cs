@@ -1,11 +1,15 @@
+using Microsoft.Extensions.Logging;
 using SharpCompose.Base.Composers;
 using SharpCompose.Base.ElementBuilder;
+using SharpCompose.Base.Modifiers;
 
 namespace SharpCompose.Base;
 
 public abstract class Composer
 {
-    public static Composer Instance { get; internal set; } = new RenderTreeComposer();
+    public static Composer Instance { get; set; } = new RenderTreeComposer();
+
+    public static ILogger? Logger { get; set; }
 
     private readonly Stack<Scope> scopes = new();
 
@@ -19,6 +23,7 @@ public abstract class Composer
 
     internal static void Recompose()
     {
+        // Logger?.Log(LogLevel.Warning, "recompose was called");
         Instance.RecomposeEvent?.Invoke();
     }
 

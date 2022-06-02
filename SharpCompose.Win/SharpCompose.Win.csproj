@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+        <LangVersion>10</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SharpCompose.Base\SharpCompose.Base.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="SharpCompose.Drawer.Core">
+        <HintPath>..\..\SharpCompose.Drawer\SharpCompose.Drawer.WPF\bin\Debug\net6.0-windows\SharpCompose.Drawer.Core.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

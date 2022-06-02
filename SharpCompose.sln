@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Base", "SharpC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSharpCompose", "TestSharpCompose\TestSharpCompose.csproj", "{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Win", "SharpCompose.Win\SharpCompose.Win.csproj", "{B38163EF-A6EE-401B-8B8C-CD24AF426F3E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B38163EF-A6EE-401B-8B8C-CD24AF426F3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B38163EF-A6EE-401B-8B8C-CD24AF426F3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B38163EF-A6EE-401B-8B8C-CD24AF426F3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B38163EF-A6EE-401B-8B8C-CD24AF426F3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
