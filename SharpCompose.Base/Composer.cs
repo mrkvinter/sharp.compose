@@ -87,6 +87,7 @@ public abstract class Composer
     public class Scope
     {
         private readonly List<Scope> child = new();
+        private readonly Dictionary<string, object> meta = new();
 
         public Action<Composer> AttributeBuilder { get; init; } = default!;
 
@@ -99,11 +100,13 @@ public abstract class Composer
         public readonly Remembered RememberedSavable = new();
 
         public string Name { get; internal set; } = "";
+
         public bool Changed { get; set; }
 
         public void Clear()
         {
             child.Clear();
+            meta.Clear();
 
             foreach (var value in Remembered.RememberedValues)
             {
@@ -126,10 +129,34 @@ public abstract class Composer
             child.Remove(scope);
         }
 
-        public override string ToString()
+        public void AddMeta<T>(T metaValue)
         {
-            var elementBuilderString = ElementBuilder?.ToString() ?? "null";
-            return $"{nameof(Scope)} ({Name}) [{elementBuilderString}]";
+            meta[typeof(T).Name] = metaValue!;
         }
+
+        public void AddMeta<T>(string key, T metaValue)
+        {
+            meta[key] = metaValue!;
+        }
+
+        public bool TryGetMeta<T>(out T? result)
+        {
+            result = default;
+            if (meta.TryGetValue(typeof(T).Name, out var r))
+            {
+                result = (T) r;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public T? GetMeta<T>()
+            => meta.TryGetValue(typeof(T).Name, out var r) ? (T?) r : default;
+
+        public T? GetMetaByKey<T>(string key) => meta.TryGetValue(key, out var r) ? (T?) r : default;
+
+        public override string ToString() => $"{nameof(Scope)} ({Name}) [{ElementBuilder.ToString()}]";
     }
 }
