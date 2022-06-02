@@ -37,7 +37,7 @@ public abstract class Composer
 
     private Scope CreateRoot()
     {
-        Root = new Scope
+        Root = new Scope(EmptyElementBuilder.Instance)
         {
             Name = "0"
         };
@@ -47,14 +47,14 @@ public abstract class Composer
 
     public abstract void BuildAttributes(IReadOnlyDictionary<string, object> attributes);
 
-    public void StartScope(Action<Composer> attributeBuilder, IElementBuilder? meta = default)
+    public void StartScope(Action<Composer> attributeBuilder, IComponentModifier? componentModifier,
+        IElementBuilder elementBuilder)
     {
         Scope Creator()
         {
-            var createdScope = new Scope
+            var createdScope = new Scope(elementBuilder)
             {
                 AttributeBuilder = attributeBuilder,
-                ElementBuilder = meta
             };
 
             if (scopes.TryPeek(out var parent))
@@ -74,6 +74,7 @@ public abstract class Composer
             scope.Changed = false;
         }
 
+        componentModifier?.MetaProducer?.Invoke(scope);
         scope.Remembered.ResetRememberedIndex();
 
         scopes.Push(scope);
@@ -89,11 +90,16 @@ public abstract class Composer
         private readonly List<Scope> child = new();
         private readonly Dictionary<string, object> meta = new();
 
+        public Scope(IElementBuilder elementBuilder)
+        {
+            ElementBuilder = elementBuilder;
+        }
+
         public Action<Composer> AttributeBuilder { get; init; } = default!;
 
         public IReadOnlyCollection<Scope> Child => child;
 
-        public IElementBuilder? ElementBuilder { get; init; }
+        public IElementBuilder ElementBuilder { get; }
 
         public readonly Remembered Remembered = new();
 

@@ -1,6 +1,8 @@
+using SharpCompose.Drawer.Core;
+
 namespace SharpCompose.Base.ElementBuilder;
 
-internal class TagElementBuilder : IElementBuilder
+public class TagElementBuilder : IElementBuilder
 {
     public string Tag { get; }
 
@@ -39,4 +41,19 @@ internal class TagElementBuilder : IElementBuilder
     public static readonly IElementBuilder Main = CreateBuilder("main");
     public static readonly IElementBuilder I = CreateBuilder("i");
     public static readonly IElementBuilder Strong = CreateBuilder("strong");
+
+    public (int w, int h) CalculateVisualSize(Composer.Scope scope, ICanvas canvas)
+    {
+        throw new NotImplementedException();
+    }
+
+    public (int w, int h) CalculateRealSize(Composer.Scope scope, ICanvas canvas)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Draw(Composer.Scope scope, ICanvas canvas, int pointerX, int pointerY)
+    {
+        throw new NotImplementedException();
+    }
 }

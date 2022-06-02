@@ -17,7 +17,7 @@ public static class HtmlCompose
             composer.BuildAttributes(builder.Attributes);
         }
 
-        Composer.Instance.StartScope(Factory, elementBuilder);
+        Composer.Instance.StartScope(Factory, null, elementBuilder);
         child?.Invoke();
         Composer.Instance.StopScope();
     }
@@ -33,7 +33,7 @@ public static class HtmlCompose
             composer.BuildAttributes(builder.Attributes);
         }
 
-        Composer.Instance.StartScope(Factory, elementBuilder);
+        Composer.Instance.StartScope(Factory, null, elementBuilder);
         Composer.Instance.StopScope();
     }
 
