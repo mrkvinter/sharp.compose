@@ -15,19 +15,6 @@ public static class Remember
         return current.Remembered.AddRemembered(value);
     }
 
-    private static async Task<ValueRemembered<T>> GetAsync<T>(Func<Task<T>> creator)
-    {
-        var current = Composer.Instance.Current!;
-        if (current.Remembered.TryGetNextRemembered<T>(out var result))
-        {
-            return result;
-        }
-
-        var value = await creator();
-
-        return current.Remembered.AddRemembered(value);
-    }
-
     public static ValueRemembered<T> Get<T>(T value) where T : struct
     {
         return Get(() => value);
@@ -45,12 +32,12 @@ public static class Remember
 
     public static void LaunchedEffect(Func<Task> action)
     {
-        GetAsync<Unit>(async () =>
+        var _ = Get<Unit>(() =>
         {
-            await action();
-    
+            action();
+
             return default;
-        }).ConfigureAwait(false);
+        });
     }
 
     public static void DisposeEffect(Action action)

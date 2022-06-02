@@ -59,7 +59,7 @@ internal interface IValueRemembered
 public class ValueRemembered<TValue> : IValueRemembered
 {
     private readonly IValueRemembered thisRemembered;
-    private readonly List<Composer.Scope> scopeToChange = new();
+    private readonly HashSet<Composer.Scope> scopeToChange = new();
 
     public TValue Value
     {
