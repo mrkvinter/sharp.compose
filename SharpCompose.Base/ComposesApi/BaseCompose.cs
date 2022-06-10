@@ -1,35 +1,40 @@
-﻿using System.Drawing;
-using SharpCompose.Base.ElementBuilder;
+﻿using SharpCompose.Base.ComposesApi.Providers;
+using SharpCompose.Base.Layouting;
+using SharpCompose.Base.Modifiers;
 
 namespace SharpCompose.Base.ComposesApi;
 
-public static class BaseCompose
+public partial class BaseCompose
 {
-    internal static void VoidScope(Action child)
+    public static void VoidScope(Action content)
     {
-        Composer.Instance.StartScope(FakeFactory, null, EmptyElementBuilder.Instance);
-        child.Invoke();
+        Composer.Instance.StartScope(IModifier.Empty.Then(new DebugModifier {ScopeName = nameof(VoidScope)}),
+            BoxLayout.Measure(new BiasAlignment(0, 0)));
+        content();
         Composer.Instance.StopScope();
     }
 
-    public static void Composable(Action content)
+    public static void For<T>(IEnumerable<T> enumerable, Action<T> itemContent) where T : notnull
     {
-        Composer.Instance.StartScope(FakeFactory, null, EmptyElementBuilder.Instance);
-        content.Invoke();
-        Composer.Instance.StopScope();
+        using var indexController = Remember.StartLoopIndex();
+        foreach (var item in enumerable)
+        {
+            indexController.Next(item.GetHashCode());
+            itemContent(item);
+        }
     }
 
-    public static void Text(string text, int size = 14, Color? color = default) =>
-        TextElement(new TextElementBuilder {Text = text, Size = size, Color = color ?? Color.Black});
-
-    private static void TextElement(
-        TextElementBuilder elementBuilder)
+    public static void CompositionLocalProvider(Provider[] providers, Action content)
     {
-        Composer.Instance.StartScope(FakeFactory, null, elementBuilder);
-        Composer.Instance.StopScope();
-    }
+        foreach (var provider in providers)
+        {
+            provider.StartProvide();
+        }
 
-    static void FakeFactory(Composer composer)
-    {
+        content();
+        foreach (var provider in providers)
+        {
+            provider.EndProvide();
+        }
     }
 }
