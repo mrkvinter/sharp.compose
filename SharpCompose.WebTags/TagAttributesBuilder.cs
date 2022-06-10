@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using SharpCompose.Base;
 
-namespace SharpCompose.Base;
+namespace SharpCompose.WebTags;
 
 public class ATagAttributesBuilder : BaseTagAttributesBuilder<ATagAttributesBuilder>
 {

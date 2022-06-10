@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Components;
+using SharpCompose.Base;
 using SharpCompose.Base.ElementBuilder;
+using SharpCompose.Base.Layouting;
+using SharpCompose.Base.Modifiers;
 
-namespace SharpCompose.Base.ComposesApi;
+namespace SharpCompose.WebTags;
 
 public static class HtmlCompose
 {
@@ -10,30 +13,29 @@ public static class HtmlCompose
         Action<T>? attributes,
         Action? child) where T : BaseAttributesBuilder, new()
     {
-        void Factory(Composer composer)
+        Measure measure = (measures, constraints) =>
         {
             var builder = new T();
             attributes?.Invoke(builder);
-            composer.BuildAttributes(builder.Attributes);
-        }
+            var attrs = builder.Attributes;
+            TreeBuilder.Instance.StartNode(elementBuilder, attrs);
+            var placeables = measures.Select(measurable => measurable.Measure(constraints)).ToArray();
+            
 
-        Composer.Instance.StartScope(Factory, null, elementBuilder);
+            return new MeasureResult
+            {
+                Width = 0, Height = 0,
+                Placeable = (x, y) =>
+                {
+                    foreach (var placeable in placeables)
+                        placeable.Placeable(x, y);
+
+                    TreeBuilder.Instance.EndNode();
+                }
+            };
+        };
+        Composer.Instance.StartScope(IModifier.Empty, measure);
         child?.Invoke();
-        Composer.Instance.StopScope();
-    }
-
-    private static void TagElement<T>(
-        IElementBuilder elementBuilder,
-        Action<T>? attributes) where T : BaseAttributesBuilder, new()
-    {
-        void Factory(Composer composer)
-        {
-            var builder = new T();
-            attributes?.Invoke(builder);
-            composer.BuildAttributes(builder.Attributes);
-        }
-
-        Composer.Instance.StartScope(Factory, null, elementBuilder);
         Composer.Instance.StopScope();
     }
 
@@ -138,5 +140,5 @@ public static class HtmlCompose
             void OnInput(ChangeEventArgs newValue) => value.Value = newValue.Value?.ToString() ?? string.Empty;
             atr.OnInput(OnInput);
             attributes?.Invoke(atr);
-        });
+        }, child: null);
 }

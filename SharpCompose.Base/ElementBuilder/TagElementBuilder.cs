@@ -2,6 +2,7 @@ using SharpCompose.Drawer.Core;
 
 namespace SharpCompose.Base.ElementBuilder;
 
+[Obsolete("Used to for Blazor integrating")]
 public class TagElementBuilder : IElementBuilder
 {
     public string Tag { get; }
@@ -42,12 +43,12 @@ public class TagElementBuilder : IElementBuilder
     public static readonly IElementBuilder I = CreateBuilder("i");
     public static readonly IElementBuilder Strong = CreateBuilder("strong");
 
-    public (int w, int h) CalculateVisualSize(Composer.Scope scope, ICanvas canvas)
+    public (int w, int h) CalculateVisualSize(Composer.Scope scope)
     {
         throw new NotImplementedException();
     }
 
-    public (int w, int h) CalculateRealSize(Composer.Scope scope, ICanvas canvas)
+    public (int w, int h) CalculateRealSize(Composer.Scope scope)
     {
         throw new NotImplementedException();
     }

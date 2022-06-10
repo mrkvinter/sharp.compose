@@ -1,39 +1,78 @@
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SharpCompose.Base;
+using SharpCompose.WebTags;
 using TestSharpCompose.TestComposer;
 
 namespace TestSharpCompose;
 
+public class MockInputHandler : IInputHandler
+{
+    public (int x, int y) MousePosition => (0, 0);
+
+    public event Action? MouseDown;
+    public event Action? MouseUp;
+    public event Action<int, int>? MouseMove;
+}
+
 public class ComposeTest
 {
+    
     [Test]
     public void StateCompose_ButtonClick_CorrectNewState()
     {
-        var composer = new TestComposer.TestComposer();
-        Composer.Instance = composer;
+        var inputHandler = new MockInputHandler();
+        var treeBuilder = new TestTreeBuilder();
+        TreeBuilder.Instance = treeBuilder;
 
-        Composer.RootComposer(TestController.WithStateCompose);
-        composer.Build().GetById("button")?.OnClick?.Invoke();
-        Composer.RootComposer(TestController.WithStateCompose);
-        var content = composer.Build().GetById("result")?.Child[0].Content;
+        Composer.Compose(inputHandler, TestController.WithStateCompose);
+        Composer.Layout();
+        
+        treeBuilder.Root.GetById("button")?.OnClick?.Invoke();
+        
+        Composer.Compose(inputHandler, TestController.WithStateCompose);
+        Composer.Layout();
+
+        var content = treeBuilder.Root.GetById("result")?.Content;
 
         Assert.That(content, Is.EqualTo("1"));
     }
 
     [Test]
+    public void StateCompose_ButtonClick_CorrectNewFlagState()
+    {
+        var inputHandler = new MockInputHandler();
+        var treeBuilder = new TestTreeBuilder();
+        TreeBuilder.Instance = treeBuilder;
+
+        Composer.Compose(inputHandler, TestController.WithSeveralStateCompose);
+        Composer.Layout();
+        treeBuilder.Root.GetById("button")?.OnClick?.Invoke();
+        Composer.Compose(inputHandler, TestController.WithSeveralStateCompose);
+        Composer.Layout();
+
+        var content = treeBuilder.Root.GetById("result")?.Content;
+        var showedTag = treeBuilder.Root.GetById("no-hidden");
+        var hiddenTag = treeBuilder.Root.GetById("hidden");
+
+        Assert.That(content, Is.EqualTo("1"));
+        Assert.That(showedTag, Is.Not.Null);
+        Assert.That(hiddenTag, Is.Null);
+    }
+
+    [Test]
     public async Task LaunchedEffect_ScopedState_StateChanged()
     {
-        var composer = new TestComposer.TestComposer();
-        Composer.Instance = composer;
+        var inputHandler = new MockInputHandler();
+        var treeBuilder = new TestTreeBuilder();
 
-        Composer.RootComposer(TestController.FetchData_ScopedState);
+        Composer.Compose(inputHandler, TestController.FetchData_ScopedState);
         await Task.Delay(120);
-        Composer.RootComposer(TestController.FetchData_ScopedState);
-        var root = composer.Build();
-        var data = root.GetById("data");
-        var noData = root.GetById("no_data");
+        Composer.Compose(inputHandler, TestController.FetchData_ScopedState);
+        var data = treeBuilder.Root.GetById("data");
+        var noData = treeBuilder.Root.GetById("no_data");
 
         Assert.IsNull(noData);
         Assert.IsNotNull(data);
@@ -42,15 +81,14 @@ public class ComposeTest
     [Test, Ignore("Not implemented")]
     public async Task LaunchedEffect_NoScopedState_StateChanged()
     {
-        var composer = new TestComposer.TestComposer();
-        Composer.Instance = composer;
+        var inputHandler = new MockInputHandler();
+        var treeBuilder = new TestTreeBuilder();
 
-        Composer.RootComposer(TestController.FetchData_NoScopedState);
+        Composer.Compose(inputHandler, TestController.FetchData_NoScopedState);
         await Task.Delay(120);
-        Composer.RootComposer(TestController.FetchData_NoScopedState);
-        var root = composer.Build();
-        var data = root.GetById("data");
-        var noData = root.GetById("no_data");
+        Composer.Compose(inputHandler, TestController.FetchData_NoScopedState);
+        var data = treeBuilder.Root.GetById("data");
+        var noData = treeBuilder.Root.GetById("no_data");
 
         Assert.IsNull(noData);
         Assert.IsNotNull(data);
@@ -59,22 +97,20 @@ public class ComposeTest
     [Test]
     public void TestComplex()
     {
-        static void Compose() => Composer.RootComposer(TestController.ComplexCompose);
-        static void Recompose() => Composer.RootComposer(TestController.ComplexCompose);
-        
-        var composer = new TestComposer.TestComposer();
-        Composer.Instance = composer;
+        static void Compose() => Composer.Compose(new MockInputHandler(), TestController.ComplexCompose);
+        static void Recompose() => Composer.Compose(new MockInputHandler(), TestController.ComplexCompose);
+
         var sw = new Stopwatch();
 
         sw.Start();
         Compose();
-        composer.Build();
+        Composer.Layout();
         sw.Stop();
         var resultCompose = sw.ElapsedMilliseconds;
         
         sw.Restart();
         Recompose();
-        composer.Build();
+        Composer.Layout();
         sw.Stop();
         var resultRecompose = sw.ElapsedMilliseconds;
 

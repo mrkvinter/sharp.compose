@@ -1,4 +1,4 @@
-namespace SharpCompose.Base.Remember;
+namespace SharpCompose.Base;
 
 internal struct Unit
 {

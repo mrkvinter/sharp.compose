@@ -1,85 +1,115 @@
-using Microsoft.Extensions.Logging;
-using SharpCompose.Base.Composers;
-using SharpCompose.Base.ElementBuilder;
+using SharpCompose.Base.ComposesApi;
+using SharpCompose.Base.ComposesApi.Providers;
+using SharpCompose.Base.Layouting;
 using SharpCompose.Base.Modifiers;
+using SharpCompose.Base.Modifiers.DrawableModifiers;
+using SharpCompose.Base.Modifiers.LayoutModifiers;
+using SharpCompose.Drawer.Core;
+using BaseCompose = SharpCompose.Base.ComposesApi.BaseCompose;
 
 namespace SharpCompose.Base;
 
-public abstract class Composer
+public delegate MeasureResult Measure(Measurable[] measures, Constraints constraints);
+
+public class Composer
 {
-    public static Composer Instance { get; set; } = new RenderTreeComposer();
+    public static Composer Instance { get; } = new();
 
-    public static ILogger? Logger { get; set; }
+    // public static ILogger? Logger { get; set; }
 
-    private readonly Stack<Scope> scopes = new();
+    private Scope? root;
+    public ICanvas Canvas { get; protected set; } = null!;
 
-    protected Scope? Root;
+    private readonly Stack<Scope> scopes = new(Array.Empty<Scope>());
 
-    public Scope? Current => scopes.TryPeek(out var parent) ? parent : null;
+    protected Scope Root => root ??= Instance.CreateRoot();
 
-    public event Action? RecomposeEvent;
+    internal Scope? Current => scopes.TryPeek(out var parent) ? parent : null;
 
+    public bool RecomposingAsk { get; private set; }
     public bool Composing { get; private set; }
 
-    internal static void Recompose()
+    //todo: make internal again
+    public static void Recompose()
     {
-        // Logger?.Log(LogLevel.Warning, "recompose was called");
-        Instance.RecomposeEvent?.Invoke();
+        Instance.RecomposingAsk = true;
     }
 
-    public static void RootComposer(Action content)
+    public void Init(ICanvas canvas)
+    {
+        Canvas = canvas;
+    }
+
+    [RootComposable]
+    public static void Compose(IInputHandler inputHandler, Action content)
     {
         Instance.Composing = true;
-        var root = Instance.Root ?? Instance.CreateRoot();
-
-        root.Remembered.ResetRememberedIndex();
-
-        Instance.scopes.Push(root);
-        content();
+        Instance.Root.Remembered.ResetRememberedIndex();
+        Instance.scopes.Push(Instance.Root);
+        BaseCompose.CompositionLocalProvider(new[]
+        {
+            LocalInputHandlerProvider.Provide(inputHandler)
+        }, content);
         Instance.scopes.Pop();
         Instance.Composing = false;
     }
 
+    public static void Layout()
+    {
+        if (Instance.Composing)
+            return;
+
+        Instance.RecomposingAsk = false;
+        var (width, height) = Instance.Canvas.Size;
+
+        Instance.Root
+            .Measurable.Measure(new Constraints(0, width, 0, height))
+            .Placeable(0, 0);
+    }
+
+    public static void Draw()
+    {
+        Instance.Root.Draw(Instance.Canvas);
+        Instance.Canvas.Draw();
+    }
+
     private Scope CreateRoot()
     {
-        Root = new Scope(EmptyElementBuilder.Instance)
+        var createdRoot = new Scope(IModifier.Empty, BoxLayout.Measure(new BiasAlignment(-1, -1)),
+            Canvas.StartGraphics())
         {
             Name = "0"
         };
         scopes.Clear();
-        return Root;
+
+        return createdRoot;
     }
 
-    public abstract void BuildAttributes(IReadOnlyDictionary<string, object> attributes);
-
-    public void StartScope(Action<Composer> attributeBuilder, IComponentModifier? componentModifier,
-        IElementBuilder elementBuilder)
+    public void StartScope(IModifier modifier, Measure measure)
     {
         Scope Creator()
         {
-            var createdScope = new Scope(elementBuilder)
-            {
-                AttributeBuilder = attributeBuilder,
-            };
+            var createdScope = new Scope(modifier, measure, Canvas.StartGraphics());
 
             if (scopes.TryPeek(out var parent))
             {
                 parent.AddChild(createdScope);
-                createdScope.Name = parent.Name + $"-{parent.Child.Count - 1}";
+                createdScope.Name = parent.Name + $"-{parent.Children.Count - 1}";
             }
 
             return createdScope;
         }
 
-        var scope = Remember.Remember.Get(Creator).Value;
+        var scope = Base.Remember.Get(Creator).Value;
+        scopes.Peek().UnusedChildren.Remove(scope);
 
         if (scope.Changed)
         {
-            scope.Clear();
+            scope.SaveUnused();
+            scope.Update(modifier);
             scope.Changed = false;
         }
 
-        componentModifier?.MetaProducer?.Invoke(scope);
         scope.Remembered.ResetRememberedIndex();
 
         scopes.Push(scope);
@@ -87,41 +117,96 @@ public abstract class Composer
 
     public void StopScope()
     {
-        scopes.Pop();
+        var scope = scopes.Pop();
+        foreach (var unusedChild in scope.UnusedChildren)
+            unusedChild.Clear();
     }
 
     public class Scope
+        // protected internal class Scope
     {
-        private readonly List<Scope> child = new();
-        private readonly Dictionary<string, object> meta = new();
+        internal readonly List<Scope> UnusedChildren = new();
 
-        public Scope(IElementBuilder elementBuilder)
+        private readonly List<Scope> children = new();
+        private readonly Measure measure;
+        private readonly IGraphics graphics;
+        private IModifier modifier;
+
+        public Scope(IModifier modifier, Measure measure, IGraphics graphics)
         {
-            ElementBuilder = elementBuilder;
+            this.modifier = modifier;
+            this.measure = measure;
+            this.graphics = graphics;
+            Measurable = GetMeasure();
         }
 
-        public Action<Composer> AttributeBuilder { get; init; } = default!;
+        public IReadOnlyCollection<Scope> Children => children;
 
-        public IReadOnlyCollection<Scope> Child => child;
-
-        public IElementBuilder ElementBuilder { get; }
+        public void Update(IModifier modifier)
+        {
+            this.modifier = modifier;
+            Measurable = GetMeasure();
+        }
 
         public readonly Remembered Remembered = new();
-
-        public readonly Remembered RememberedSavable = new();
 
         public string Name { get; internal set; } = "";
 
         public bool Changed { get; set; }
 
+        public Measurable Measurable { get; private set; }
+
+        private Measurable GetMeasure()
+        {
+            var measurable = new Measurable
+            {
+                Measure = constraints => measure(children
+                    .Select(e => e.Measurable).ToArray(), constraints)
+            };
+
+            var modifiers = modifier.SqueezeModifiers();
+
+            foreach (var m in modifiers)
+            {
+                if (m is DebugModifier debugModifier)
+                {
+                    if (debugModifier.ScopeName != null) this.Name = debugModifier.ScopeName;
+                    continue;
+                }
+
+                measurable = m switch
+                {
+                    ILayoutModifier layoutModifier => layoutModifier.Introduce(measurable),
+                    IDrawableModifier drawableModifier => drawableModifier.Introduce(measurable, graphics),
+                    IParentDataModifier parentDataModifier => parentDataModifier.Introduce(measurable),
+                    _ => measurable
+                };
+            }
+
+            return measurable;
+        }
+
+        public void Draw(ICanvas canvas)
+        {
+            canvas.DrawGraphics(0, 0, graphics);
+            graphics.Clear();
+            children.ForEach(c => c.Draw(canvas));
+        }
+
+        public void SaveUnused()
+        {
+            UnusedChildren.Clear();
+            UnusedChildren.AddRange(children);
+        }
+
         public void Clear()
         {
-            child.Clear();
-            meta.Clear();
+            children.ForEach(c => c.Clear());
+            children.Clear();
 
             foreach (var value in Remembered.RememberedValues)
             {
-                if (value is Remember.Remember.DisposableEffect disposableEffect)
+                if (value is Base.Remember.DisposableEffect disposableEffect)
                 {
                     disposableEffect.Dispose();
                 }
@@ -132,42 +217,15 @@ public abstract class Composer
 
         public void AddChild(Scope scope)
         {
-            child.Add(scope);
+            children.Add(scope);
         }
 
         public void RemoveChild(Scope scope)
         {
-            child.Remove(scope);
+            children.Remove(scope);
         }
 
-        public void AddMeta<T>(T metaValue)
-        {
-            meta[typeof(T).Name] = metaValue!;
-        }
-
-        public void AddMeta<T>(string key, T metaValue)
-        {
-            meta[key] = metaValue!;
-        }
-
-        public bool TryGetMeta<T>(out T? result)
-        {
-            result = default;
-            if (meta.TryGetValue(typeof(T).Name, out var r))
-            {
-                result = (T) r;
-
-                return true;
-            }
-
-            return false;
-        }
-
-        public T? GetMeta<T>()
-            => meta.TryGetValue(typeof(T).Name, out var r) ? (T?) r : default;
-
-        public T? GetMetaByKey<T>(string key) => meta.TryGetValue(key, out var r) ? (T?) r : default;
-
-        public override string ToString() => $"{nameof(Scope)} ({Name}) [{ElementBuilder.ToString()}]";
+        public override string ToString() =>
+            $"{nameof(Scope)} ({Name}) [{Remembered.RememberedValues.FirstOrDefault()}]";
     }
 }

@@ -4,3 +4,8 @@ namespace SharpCompose.Base;
 public class ComposableAttribute : Attribute
 {
 }
+
+[AttributeUsage(AttributeTargets.Method)]
+public class RootComposableAttribute : Attribute
+{
+}

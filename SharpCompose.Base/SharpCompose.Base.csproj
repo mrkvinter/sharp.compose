@@ -7,7 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.Components" Version="6.0.1" />
+      <Folder Include="TreeBuilders" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="SharpCompose.Drawer.Core">
+        <HintPath>..\..\SharpCompose.Drawer\SharpCompose.Drawer.Core\bin\Debug\net6.0\SharpCompose.Drawer.Core.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
