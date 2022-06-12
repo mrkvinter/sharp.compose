@@ -2,7 +2,7 @@
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Shapes;
 
-namespace SharpCompose.Base.Shapes;
+namespace SharpCompose.Base;
 
 public static class Shapes
 {
@@ -85,8 +85,6 @@ public sealed class RoundedCornerShape : IShape
     public Outline CreateOutline(int width, int height)
     {
         const double circleCornerModifier = 0.44771525016;
-        var halfWidth = (int) Math.Round(width / 2.0);
-        var halfHeight = (int) Math.Round(height / 2.0);
         var topLeftShift = topLeft.ToPx(width, height);
         var topRightShift = topRight.ToPx(width, height);
         var bottomLeftShift = bottomLeft.ToPx(width, height);

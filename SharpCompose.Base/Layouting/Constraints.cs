@@ -26,6 +26,13 @@ public struct Constraints
         MaxHeight = maxHeight;
     }
 
+    public Constraints Constraint(Constraints otherConstraints)
+        => new(
+            Math.Clamp(MinWidth, otherConstraints.MinWidth, otherConstraints.MaxWidth),
+            Math.Clamp(MaxWidth, otherConstraints.MinWidth, otherConstraints.MaxWidth),
+            Math.Clamp(MinHeight, otherConstraints.MinHeight, otherConstraints.MaxHeight),
+            Math.Clamp(MaxHeight, otherConstraints.MinHeight, otherConstraints.MaxHeight));
+
     public Constraints Offset(int horizontal, int vertical)
     {
         var maxWidth = MaxWidth == Infinity ? MaxWidth : MaxWidth + horizontal;

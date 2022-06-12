@@ -1,4 +1,3 @@
-using SharpCompose.Base.ComposesApi;
 using SharpCompose.Base.ComposesApi.Providers;
 using SharpCompose.Base.Layouting;
 using SharpCompose.Base.Modifiers;
@@ -22,7 +21,7 @@ public class Composer
 
     private readonly Stack<Scope> scopes = new(Array.Empty<Scope>());
 
-    protected Scope Root => root ??= Instance.CreateRoot();
+    protected internal Scope Root => root ??= Instance.CreateRoot();
 
     internal Scope? Current => scopes.TryPeek(out var parent) ? parent : null;
 
@@ -38,6 +37,8 @@ public class Composer
     public void Init(ICanvas canvas)
     {
         Canvas = canvas;
+
+        BaseCompose.MeasureText = (text, size, font) => canvas.MeasureText(text, size, font);
     }
 
     [RootComposable]
@@ -48,7 +49,7 @@ public class Composer
         Instance.scopes.Push(Instance.Root);
         BaseCompose.CompositionLocalProvider(new[]
         {
-            LocalInputHandlerProvider.Provide(inputHandler)
+            LocalProviders.InputHandler.Provide(inputHandler)
         }, content);
         Instance.scopes.Pop();
         Instance.Composing = false;
@@ -69,6 +70,9 @@ public class Composer
 
     public static void Draw()
     {
+        if (Instance.Composing)
+            return;
+
         Instance.Root.Draw(Instance.Canvas);
         Instance.Canvas.Draw();
     }
@@ -125,6 +129,8 @@ public class Composer
     public class Scope
         // protected internal class Scope
     {
+        internal IModifier Modifier => modifier;
+
         internal readonly List<Scope> UnusedChildren = new();
 
         private readonly List<Scope> children = new();

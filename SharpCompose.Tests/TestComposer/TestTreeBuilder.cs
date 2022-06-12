@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using SharpCompose.Base;
-using SharpCompose.Base.ElementBuilder;
 using SharpCompose.WebTags;
+using SharpCompose.WebTags.ElementBuilder;
 
 namespace TestSharpCompose.TestComposer;
 

@@ -45,7 +45,7 @@ public static class InputModifierExtensions
         OnMouseInputModifier mouseInputModifier,
         ValueRemembered<BoundState> boundState) where T : IScopeModifier<T>
     {
-        var inputHandler = LocalInputHandlerProvider.Value;
+        var inputHandler = LocalProviders.InputHandler.Value!;
         var mouseState = Remember.Get(
             () => new MouseState(IsMouseOver(inputHandler.MousePosition.x, inputHandler.MousePosition.y, boundState.Value)));
 

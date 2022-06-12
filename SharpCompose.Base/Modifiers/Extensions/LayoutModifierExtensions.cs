@@ -8,6 +8,9 @@ public static class LayoutModifierExtensions
     public static T Size<T>(this T self, int width, int height) where T : IScopeModifier<T>
         => self.Then(new SizeModifier(Constraints.Fixed(width, height)));
 
+    public static T Size<T>(this T self, int size) where T : IScopeModifier<T>
+        => self.Then(new SizeModifier(Constraints.Fixed(size, size)));
+
     public static T Width<T>(this T self, int width) where T : IScopeModifier<T>
         => self.Then(new SizeModifier(Constraints.FixedWidth(width)));
 
@@ -49,4 +52,7 @@ public static class LayoutModifierExtensions
             {
                 MatchParentWidth = true, MatchParentHeight = true
             }));
+    
+    public static T Then<T>(this T self, Modifier modifier) where T : IScopeModifier<T>
+        => self.Then(modifier.SelfModifier);
 }

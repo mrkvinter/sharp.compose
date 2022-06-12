@@ -1,18 +1,21 @@
-﻿namespace SharpCompose.Base.ComposesApi.Providers;
+﻿using System.Drawing;
+
+namespace SharpCompose.Base.ComposesApi.Providers;
 
 public record struct Provider(Action StartProvide, Action EndProvide);
 
 public class LocalProvider<T>
 {
-    private static LocalProvider<T> Instance { get; } = new();
+    public T Value { get; protected set; }
 
-    public static T Value => Instance.value;
-
-    private T value;
-
-    public static Provider Provide(T newValue)
+    public LocalProvider(T defaultValue)
     {
-        var oldValue = Instance.value;
-        return new Provider(() => Instance.value = newValue, () => Instance.value = oldValue);
+        Value = defaultValue;
+    }
+
+    public Provider Provide(T newValue)
+    {
+        var oldValue = Value;
+        return new Provider(() => Value = newValue, () => Value = oldValue);
     }
 }

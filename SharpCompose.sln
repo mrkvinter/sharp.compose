@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Base", "SharpCompose.Base\SharpCompose.Base.csproj", "{2A0A6489-9906-42BC-930A-4028B65804D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSharpCompose", "TestSharpCompose\TestSharpCompose.csproj", "{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Tests", "SharpCompose.Tests\SharpCompose.Tests.csproj", "{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Win", "SharpCompose.Win\SharpCompose.Win.csproj", "{B38163EF-A6EE-401B-8B8C-CD24AF426F3E}"
 EndProject

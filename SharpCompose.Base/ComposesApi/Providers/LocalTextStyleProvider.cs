@@ -9,13 +9,3 @@ public class TextStyle
     public int FontSize { get; init; } = 14;
     public Font Font { get; init; } = new Font("Helvetica", FontWeight.Regular);
 }
-
-public class LocalTextStyleProvider : LocalProvider<TextStyle>
-{
-    private static TextStyle DefaultValue = new();
-
-    static LocalTextStyleProvider()
-    {
-        Provide(DefaultValue).StartProvide();
-    }
-}

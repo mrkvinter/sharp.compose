@@ -3,11 +3,6 @@ using SharpCompose.Base;
 
 namespace SharpCompose.WebTags;
 
-public class ATagAttributesBuilder : BaseTagAttributesBuilder<ATagAttributesBuilder>
-{
-    public ATagAttributesBuilder Href(string href) => Attr("href", href);
-}
-
 public class CommonTagAttributesBuilder : BaseTagAttributesBuilder<CommonTagAttributesBuilder>
 {
 }

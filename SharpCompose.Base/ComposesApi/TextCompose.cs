@@ -17,9 +17,9 @@ public static partial class BaseCompose
 
     public static void Text(string text, int? size = null, Color? color = default, Font? font = null) =>
         TextElement(text, 
-            size ?? LocalTextStyleProvider.Value.FontSize, 
-            color ?? LocalTextStyleProvider.Value.Color ?? LocalColorsProvider.Value.OnStandard, 
-            font ?? LocalTextStyleProvider.Value.Font);
+            size ?? LocalProviders.TextStyle.Value.FontSize, 
+            color ?? LocalProviders.TextStyle.Value.Color ?? LocalProviders.Colors.Value.OnStandard, 
+            font ?? LocalProviders.TextStyle.Value.Font);
 
     private static void TextElement(string text, int size, Color color, Font font)
     {
@@ -41,8 +41,10 @@ public static partial class BaseCompose
         Composer.Instance.StopScope();
     }
 
-    private sealed class TextDrawModifier : IDrawableModifier
+    public sealed class TextDrawModifier : IDrawableModifier
     {
+        public string Text => text;
+        
         private readonly string text;
         private readonly int fontSize;
         private readonly Font font;

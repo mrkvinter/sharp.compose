@@ -1,5 +1,6 @@
 ﻿using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Brushes;
+using SharpCompose.Drawer.Core.Images;
 using SharpCompose.Drawer.Core.Shapes;
 
 namespace TestSharpCompose.TestComposer;
@@ -45,6 +46,11 @@ public class TestCanvas : ICanvas
             IShape shape,
             Brush brush)
         {
+        }
+
+        public void DrawImage((int x, int y) point, (int w, int h) size, IImage image)
+        {
+            
         }
 
         public void Clip(IShape shape, (int x, int y) offset, (int w, int h) size)

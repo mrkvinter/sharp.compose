@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using SharpCompose.Base;
-using SharpCompose.Base.ElementBuilder;
 using SharpCompose.Drawer.Core;
 
 namespace SharpCompose.Win;

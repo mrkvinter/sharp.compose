@@ -1,6 +1,7 @@
+using SharpCompose.Base;
 using SharpCompose.Drawer.Core;
 
-namespace SharpCompose.Base.ElementBuilder;
+namespace SharpCompose.WebTags.ElementBuilder;
 
 [Obsolete("Used to for Blazor integrating")]
 public class TagElementBuilder : IElementBuilder

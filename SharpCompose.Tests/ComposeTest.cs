@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SharpCompose.Base;
 using SharpCompose.WebTags;
+using TestSharpCompose.TestComposables;
 using TestSharpCompose.TestComposer;
 
 namespace TestSharpCompose;
@@ -27,12 +28,12 @@ public class ComposeTest
         var treeBuilder = new TestTreeBuilder();
         TreeBuilder.Instance = treeBuilder;
 
-        Composer.Compose(inputHandler, TestController.WithStateCompose);
+        Composer.Compose(inputHandler, TestWebController.WithStateCompose);
         Composer.Layout();
         
         treeBuilder.Root.GetById("button")?.OnClick?.Invoke();
         
-        Composer.Compose(inputHandler, TestController.WithStateCompose);
+        Composer.Compose(inputHandler, TestWebController.WithStateCompose);
         Composer.Layout();
 
         var content = treeBuilder.Root.GetById("result")?.Content;
@@ -47,10 +48,10 @@ public class ComposeTest
         var treeBuilder = new TestTreeBuilder();
         TreeBuilder.Instance = treeBuilder;
 
-        Composer.Compose(inputHandler, TestController.WithSeveralStateCompose);
+        Composer.Compose(inputHandler, TestWebController.WithSeveralStateCompose);
         Composer.Layout();
         treeBuilder.Root.GetById("button")?.OnClick?.Invoke();
-        Composer.Compose(inputHandler, TestController.WithSeveralStateCompose);
+        Composer.Compose(inputHandler, TestWebController.WithSeveralStateCompose);
         Composer.Layout();
 
         var content = treeBuilder.Root.GetById("result")?.Content;
@@ -68,9 +69,9 @@ public class ComposeTest
         var inputHandler = new MockInputHandler();
         var treeBuilder = new TestTreeBuilder();
 
-        Composer.Compose(inputHandler, TestController.FetchData_ScopedState);
+        Composer.Compose(inputHandler, TestWebController.FetchData_ScopedState);
         await Task.Delay(120);
-        Composer.Compose(inputHandler, TestController.FetchData_ScopedState);
+        Composer.Compose(inputHandler, TestWebController.FetchData_ScopedState);
         var data = treeBuilder.Root.GetById("data");
         var noData = treeBuilder.Root.GetById("no_data");
 
@@ -84,9 +85,9 @@ public class ComposeTest
         var inputHandler = new MockInputHandler();
         var treeBuilder = new TestTreeBuilder();
 
-        Composer.Compose(inputHandler, TestController.FetchData_NoScopedState);
+        Composer.Compose(inputHandler, TestWebController.FetchData_NoScopedState);
         await Task.Delay(120);
-        Composer.Compose(inputHandler, TestController.FetchData_NoScopedState);
+        Composer.Compose(inputHandler, TestWebController.FetchData_NoScopedState);
         var data = treeBuilder.Root.GetById("data");
         var noData = treeBuilder.Root.GetById("no_data");
 
@@ -97,8 +98,8 @@ public class ComposeTest
     [Test]
     public void TestComplex()
     {
-        static void Compose() => Composer.Compose(new MockInputHandler(), TestController.ComplexCompose);
-        static void Recompose() => Composer.Compose(new MockInputHandler(), TestController.ComplexCompose);
+        static void Compose() => Composer.Compose(new MockInputHandler(), TestWebController.ComplexCompose);
+        static void Recompose() => Composer.Compose(new MockInputHandler(), TestWebController.ComplexCompose);
 
         var sw = new Stopwatch();
 

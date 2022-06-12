@@ -7,9 +7,9 @@ using SharpCompose.Base;
 using static SharpCompose.Base.ComposesApi.BaseCompose;
 using static SharpCompose.WebTags.HtmlCompose;
 
-namespace TestSharpCompose;
+namespace TestSharpCompose.TestComposables;
 
-public class TestController
+public class TestWebController
 {
     [Composable]
     public static void SimpleCompose() =>

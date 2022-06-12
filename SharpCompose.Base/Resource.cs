@@ -4,13 +4,14 @@ public sealed class Resource
 {
     public static Resource Instance { get; } = new();
 
-    private Dictionary<string, Func<Stream>> creators = new();
+    private Dictionary<string, Func<object>> creators = new();
     private Resource(){}
 
-    public void AddResource(string key, Func<Stream> streamCreator)
+    public void AddResource<T>(string key, Func<T> streamCreator) where T: class
     {
         creators.Add(key, streamCreator);
     }
 
-    public Stream GetResource(string key) => creators[key]();
+    public T GetResource<T>(string key) where T: class
+        => (T)creators[key]();
 }

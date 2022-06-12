@@ -1,8 +1,9 @@
 ﻿using SharpCompose.Base;
-using SharpCompose.Base.ElementBuilder;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Brushes;
+using SharpCompose.Drawer.Core.Images;
 using SharpCompose.Drawer.Core.Shapes;
+using SharpCompose.WebTags.ElementBuilder;
 
 namespace SharpCompose.WebTags;
 
@@ -47,6 +48,10 @@ public class FakeCanvas : ICanvas
         public void DrawShadow((int x, int y) point, (int w, int h) size, (int x, int y) offset, int blurRadius,
             IShape shape,
             Brush brush)
+        {
+        }
+
+        public void DrawImage((int x, int y) point, (int w, int h) size, IImage image)
         {
         }
 
