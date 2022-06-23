@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 
@@ -88,8 +87,7 @@ public static class Remember
         return key.ToString();
     }
 
-    [return: NotNull]
-    public static ValueRemembered<T> Get<T>(T value) where T : struct
+    public static ValueRemembered<T> Get<T>(T value)
     {
         return Get(() => value);
     }

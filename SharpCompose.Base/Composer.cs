@@ -102,7 +102,7 @@ public class Composer
             return createdScope;
         }
 
-        var scope = Base.Remember.Get(Creator).Value;
+        var scope = Remember.Get(Creator).Value;
         scopes.Peek().UnusedChildren.Remove(scope);
 
         if (scope.Changed)
@@ -210,7 +210,7 @@ public class Composer
 
             foreach (var value in Remembered.RememberedValues)
             {
-                if (value is Base.Remember.DisposableEffect disposableEffect)
+                if (value is Remember.DisposableEffect disposableEffect)
                 {
                     disposableEffect.Dispose();
                 }
