@@ -1,4 +1,5 @@
 ﻿using SharpCompose.Base.ComposesApi.Providers;
+using SharpCompose.Base.Input;
 
 namespace SharpCompose.Base.Modifiers.Extensions;
 
@@ -37,6 +38,15 @@ public static class InputModifierExtensions
         return OnInputModifier(self, new OnMouseInputModifier(boundState)
         {
             OnMouseUp = callback
+        }, boundState);
+    }
+
+    public static T OnMouseUp<T>(this T self, Action<BoundState> callback) where T : IScopeModifier<T>
+    {
+        var boundState = Remember.Get(new BoundState());
+        return OnInputModifier(self, new OnMouseInputModifier(boundState)
+        {
+            OnMouseUp = () => callback(boundState.Value)
         }, boundState);
     }
 
@@ -81,6 +91,30 @@ public static class InputModifierExtensions
     private static bool IsMouseOver(int mouseX, int mouseY, BoundState boundState)
         => mouseX >= boundState.XOffset && mouseX <= boundState.XOffset + boundState.Width &&
            mouseY >= boundState.YOffset && mouseY <= boundState.YOffset + boundState.Height;
+
+    public static T OnInputKeyDown<T>(
+        this T modifier,
+        Action<KeyCode> onInputKeyDown) where T : IScopeModifier<T>
+    {
+        var inputHandler = LocalProviders.InputHandler.Value!;
+
+        Remember.LaunchedEffect(() => inputHandler.KeyDown += onInputKeyDown);
+        Remember.DisposeEffect(() => inputHandler.KeyDown -= onInputKeyDown);
+
+        return modifier;
+    }
+    
+    public static T OnInputText<T>(
+        this T modifier,
+        Action<string> onInputText) where T : IScopeModifier<T>
+    {
+        var inputHandler = LocalProviders.InputHandler.Value!;
+
+        Remember.LaunchedEffect(() => inputHandler.OnTextInput += onInputText);
+        Remember.DisposeEffect(() => inputHandler.OnTextInput -= onInputText);
+
+        return modifier;
+    }
 }
 
 public record struct BoundState(int XOffset = 0, int YOffset = 0, int Width = 0, int Height = 0);

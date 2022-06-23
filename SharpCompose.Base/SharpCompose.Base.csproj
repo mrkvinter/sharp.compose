@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="ElementBuilder" />
       <Folder Include="TreeBuilders" />
     </ItemGroup>
 
