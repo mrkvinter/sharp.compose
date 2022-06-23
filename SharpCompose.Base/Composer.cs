@@ -14,8 +14,6 @@ public class Composer
 {
     public static Composer Instance { get; } = new();
 
-    // public static ILogger? Logger { get; set; }
-
     private Scope? root;
     public ICanvas Canvas { get; protected set; } = null!;
 
@@ -164,8 +162,12 @@ public class Composer
         {
             var measurable = new Measurable
             {
-                Measure = constraints => measure(children
-                    .Select(e => e.Measurable).ToArray(), constraints)
+                Measure = constraints =>
+                {
+                    graphics.Clear();
+                    return measure(children
+                        .Select(e => e.Measurable).ToArray(), constraints);
+                }
             };
 
             var modifiers = modifier.SqueezeModifiers();
@@ -193,7 +195,6 @@ public class Composer
         public void Draw(ICanvas canvas)
         {
             canvas.DrawGraphics(0, 0, graphics);
-            graphics.Clear();
             children.ForEach(c => c.Draw(canvas));
         }
 
