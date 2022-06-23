@@ -55,6 +55,8 @@ public class FakeCanvas : ICanvas
         {
         }
 
+        public (int w, int h) MeasureText(string text, double emSize, Font font) => (0, 0);
+
         public void Clip(IShape shape, (int x, int y) offset, (int w, int h) size)
         {
         }

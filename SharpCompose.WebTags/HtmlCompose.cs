@@ -20,7 +20,6 @@ public static class HtmlCompose
             var attrs = builder.Attributes;
             TreeBuilder.Instance.StartNode(elementBuilder, attrs);
             var placeables = measures.Select(measurable => measurable.Measure(constraints)).ToArray();
-            
 
             return new MeasureResult
             {

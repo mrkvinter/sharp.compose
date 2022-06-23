@@ -11,30 +11,27 @@ public class TestTreeBuilder : TreeBuilder
 {
     private static Stack<HtmlNode> nodes = new();
 
-    public HtmlNode Root { get; private set; }
-
-    public static HtmlNode Current => nodes.Peek();
+    public HtmlNode Root { get; }
 
     public TestTreeBuilder() : base(A.Fake<ICanvas>())
     {
+        Root = new HtmlNode();
+
+        nodes.Push(Root);
     }
 
     public override void StartNode(IElementBuilder elementBuilder, IReadOnlyDictionary<string, object> attrs)
     {
         var node = new HtmlNode();
-        if (nodes.Count > 0)
-            nodes.Peek().Child.Add(node);
-        else
-            Root = node;
+        nodes.Peek().Child.Add(node);
 
         nodes.Push(node);
         if (elementBuilder is TextElementBuilder textElementBuilder)
         {
             node.Content = textElementBuilder.Text;
         }
-        else if (elementBuilder is TagElementBuilder tagElementBuilder)
+        else if (elementBuilder is TagElementBuilder)
         {
-            node.Tag = tagElementBuilder.Tag;
             BuildAttributes(attrs, node);
         }
     }
@@ -54,7 +51,6 @@ public class TestTreeBuilder : TreeBuilder
             case "class":
             {
                 var classes = ((string) value!).Split(" ");
-                node.Classes = classes;
                 break;
             }
             case "onclick":
@@ -77,13 +73,9 @@ public class HtmlNode
 {
     public List<HtmlNode> Child { get; } = new();
 
-    public string? Tag;
-
     public string? Content;
 
     public string? Id;
-
-    public string[]? Classes;
 
     public Action? OnClick;
 }

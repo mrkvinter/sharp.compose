@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using SharpCompose.Base;
+using SharpCompose.Base.Modifiers;
 
 namespace TestSharpCompose.ComposeTester.Matchers;
 
