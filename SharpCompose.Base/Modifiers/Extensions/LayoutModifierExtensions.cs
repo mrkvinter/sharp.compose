@@ -20,7 +20,7 @@ public static class LayoutModifierExtensions
     public static T Padding<T>(this T self, int padding) where T : IScopeModifier<T>
         => self.Then(new PaddingModifier(padding, padding, padding, padding));
 
-    public static T Padding<T>(this T self, int horizontal = 0, int vertical = 0)
+    public static T Padding<T>(this T self, int horizontal, int vertical)
         where T : IScopeModifier<T>
         => self.Then(new PaddingModifier(horizontal, vertical, horizontal, vertical));
 

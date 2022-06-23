@@ -7,15 +7,10 @@ namespace TestSharpCompose.ComposeTester;
 
 public class ComposeTester
 {
-    private readonly IInputHandler inputHandler;
-    private readonly ICanvas canvas;
-    private readonly Action setContent;
-
     public ComposeTester(Action setContent)
     {
-        this.setContent = setContent;
-        inputHandler = A.Fake<IInputHandler>();
-        canvas = A.Fake<ICanvas>();
+        var inputHandler = A.Fake<IInputHandler>();
+        var canvas = A.Fake<ICanvas>();
         A.CallTo(() => canvas.Size).Returns((800, 600));
 
         Composer.Instance.Init(canvas);

@@ -53,7 +53,12 @@ public static class WeatherCard
     private static void WeatherHour(int hours, int temperature)
         => Column(horizontalAlignment: Alignment.Center, content: () =>
         {
-            var sign = temperature > 0 ? "+" : temperature < 0 ? "-" : "";
+            var sign = temperature switch
+            {
+                > 0 => "+",
+                < 0 => "-",
+                _ => string.Empty
+            };
 
             Text($"{hours}:00", 18, Color.White);
             Spacer(Modifier.Height(5));

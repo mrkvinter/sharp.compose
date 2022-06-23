@@ -9,7 +9,7 @@ using static SharpCompose.WebTags.HtmlCompose;
 
 namespace TestSharpCompose.TestComposables;
 
-public class TestWebController
+public static class TestWebController
 {
     [Composable]
     public static void SimpleCompose() =>
@@ -84,33 +84,15 @@ public class TestWebController
         var data = Remember.Get(Array.Empty<int>);
         Remember.LaunchedEffect(async () => { data.Value = await GetData() ?? Array.Empty<int>(); });
 
-        var k1 = GetKey();
-
         P(child: () => Text("paragraph"));
 
         Div(child: () =>
         {
-            var k2 = GetKey();
-
             if (data.Value.Length == 0)
                 P(atr => atr.Id("no_data"), () => Text("not data"));
             else
                 P(atr => atr.Id("data"), () => Text(string.Join(" ", data)));
-            var k3 = GetKey();
-
         });
-    }
-
-    private static string GetKey()
-    {
-        var st = new StackTrace();
-        var key = new StringBuilder();
-        foreach (var stackFrame in st.GetFrames())
-        {
-            key.Append($"{stackFrame.GetILOffset()}-");
-        }
-
-        return key.ToString();
     }
 
     [Composable]
@@ -119,14 +101,12 @@ public class TestWebController
         var data = Remember.Get(Array.Empty<int>);
         Remember.LaunchedEffect(async () => data.Value = await GetData() ?? Array.Empty<int>());
 
-        P(child: () => Text("paragraph")); //1
+        P(child: () => Text("paragraph"));
 
-        // VoidScope(() => {
-        if (data.Value.Length == 0) //
-            P(atr => atr.Id("no_data"), () => Text("not data")); //2
+        if (data.Value.Length == 0)
+            P(atr => atr.Id("no_data"), () => Text("not data"));
         else
-            P(atr => atr.Id("data"), () => Text(string.Join(" ", data))); //3
-        // });
+            P(atr => atr.Id("data"), () => Text(string.Join(" ", data)));
     }
 
     public static void Counter() => Box(content: () =>

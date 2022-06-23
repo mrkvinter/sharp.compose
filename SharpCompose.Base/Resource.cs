@@ -4,7 +4,8 @@ public sealed class Resource
 {
     public static Resource Instance { get; } = new();
 
-    private Dictionary<string, Func<object>> creators = new();
+    private readonly Dictionary<string, Func<object>> creators = new();
+
     private Resource(){}
 
     public void AddResource<T>(string key, Func<T> streamCreator) where T: class

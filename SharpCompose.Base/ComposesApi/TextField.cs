@@ -30,22 +30,27 @@ public partial class BaseCompose
                 .Padding(11, 4, 35, 6)
                 .OnInputKeyDown(c =>
                 {
-                    if (c == KeyCode.Left) //left
-                        cursorPosition.Value -= cursorPosition.Value == 0 ? 0 : 1;
-                    else if (c == KeyCode.Right) //right
-                        cursorPosition.Value += cursorPosition.Value == internalValue.Value.Length ? 0 : 1;
-                    else if (c == KeyCode.Back) // Backspace
+                    switch (c)
                     {
-                        if (cursorPosition.Value != 0)
+                        case KeyCode.Left:
+                            cursorPosition.Value -= cursorPosition.Value == 0 ? 0 : 1;
+                            break;
+                        case KeyCode.Right:
+                            cursorPosition.Value += cursorPosition.Value == internalValue.Value.Length ? 0 : 1;
+                            break;
+                        case KeyCode.Back:
                         {
-                            cursorPosition.Value--;
-                            onValueChanged(internalValue.Value.Remove(cursorPosition.Value, 1));
+                            if (cursorPosition.Value != 0)
+                            {
+                                cursorPosition.Value--;
+                                onValueChanged(internalValue.Value.Remove(cursorPosition.Value, 1));
+                            }
+
+                            break;
                         }
-                    }
-                    else if (c == KeyCode.Delete) //Del
-                    {
-                        if (cursorPosition.Value != internalValue.Value.Length)
+                        case KeyCode.Delete when cursorPosition.Value != internalValue.Value.Length:
                             onValueChanged(internalValue.Value.Remove(cursorPosition.Value, 1));
+                            break;
                     }
                 })
                 .OnInputText(s =>

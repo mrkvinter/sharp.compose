@@ -41,7 +41,6 @@ public class Composer
     public static void Compose(IInputHandler inputHandler, Action content)
     {
         Instance.Composing = true;
-        Instance.Root.Remembered.ResetRememberedIndex();
         Instance.scopes.Push(Instance.Root);
         BaseCompose.CompositionLocalProvider(new[]
         {
@@ -69,7 +68,7 @@ public class Composer
         if (Instance.Composing)
             return;
 
-        Instance.Root.Draw(Instance.Canvas);
+        Instance.Root.DrawNode(Instance.Canvas);
         Instance.Canvas.Draw();
     }
 
@@ -109,8 +108,6 @@ public class Composer
             scope.Update(modifier);
             scope.Changed = false;
         }
-
-        scope.Remembered.ResetRememberedIndex();
 
         scopes.Push(scope);
     }
@@ -192,10 +189,10 @@ public class Composer
             return measurable;
         }
 
-        public void Draw(ICanvas canvas)
+        public void DrawNode(ICanvas canvas)
         {
             canvas.DrawGraphics(0, 0, graphics);
-            children.ForEach(c => c.Draw(canvas));
+            children.ForEach(c => c.DrawNode(canvas));
         }
 
         public void SaveUnused()

@@ -48,14 +48,13 @@ public class TestTreeBuilder : TreeBuilder
             case "id":
                 node.Id = (string) value!;
                 break;
-            case "class":
-            {
-                var classes = ((string) value!).Split(" ");
-                break;
-            }
+
+            case "class": break;
+
             case "onclick":
                 node.OnClick = (Action) value!;
                 break;
+
             default: throw new NotImplementedException($"Unknowing attribute name {name}");
         }
     }

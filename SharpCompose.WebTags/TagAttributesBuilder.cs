@@ -21,7 +21,6 @@ public class BaseTagAttributesBuilder<T> : BaseAttributesBuilder
 
     public T Class(params string[] classes) => Attr("class", string.Join(" ", classes));
 
-    //todo: make styleBuilder here
     public T Style(string style) => Attr("style", style);
 
     public T OnClick(Action onClick) => Attr("onclick", onClick);
