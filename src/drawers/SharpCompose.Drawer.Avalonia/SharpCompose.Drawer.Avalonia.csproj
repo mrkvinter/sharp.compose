@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="0.10.14" />
+      <PackageReference Include="VectSharp" Version="2.3.0" />
+      <PackageReference Include="VectSharp.Canvas" Version="2.5.2" />
+      <PackageReference Include="VectSharp.ImageSharpUtils" Version="1.0.1-beta14" />
+      <PackageReference Include="VectSharp.MuPDFUtils" Version="1.1.7" />
+      <PackageReference Include="VectSharp.SVG" Version="1.7.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SharpCompose.Drawer.Core\SharpCompose.Drawer.Core.csproj" />
+    </ItemGroup>
+
+</Project>

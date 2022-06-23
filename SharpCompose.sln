@@ -1,10 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Base", "SharpCompose.Base\SharpCompose.Base.csproj", "{2A0A6489-9906-42BC-930A-4028B65804D0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Base", "src\SharpCompose.Base\SharpCompose.Base.csproj", "{2A0A6489-9906-42BC-930A-4028B65804D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Tests", "SharpCompose.Tests\SharpCompose.Tests.csproj", "{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Tests", "tests\SharpCompose.Tests\SharpCompose.Tests.csproj", "{689A1C13-F4CC-44A5-A465-AB2D3C440C3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.WebTags", "SharpCompose.WebTags\SharpCompose.WebTags.csproj", "{D8542286-BC8D-4B25-8F04-53B7DD2D60B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.WebTags", "src\SharpCompose.WebTags\SharpCompose.WebTags.csproj", "{D8542286-BC8D-4B25-8F04-53B7DD2D60B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{97B75EE9-0B53-4335-8D70-02C506A40675}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{2657B1F2-BD9C-4E3A-9E89-24CBF58C8680}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "drawers", "drawers", "{2F996352-A349-4A19-BBAB-F0C692F0E479}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Drawer.Core", "src\drawers\SharpCompose.Drawer.Core\SharpCompose.Drawer.Core.csproj", "{D02DC890-1A00-4E3E-AADE-03B299D52880}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Drawer.WinUI", "src\drawers\SharpCompose.Drawer.WinUI\SharpCompose.Drawer.WinUI.csproj", "{E826486C-5A0D-45E8-8C8A-BAD607A0B242}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCompose.Drawer.Avalonia", "src\drawers\SharpCompose.Drawer.Avalonia\SharpCompose.Drawer.Avalonia.csproj", "{7309C588-FB01-4799-94B3-B86DC1B315FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +36,26 @@ Global
 		{D8542286-BC8D-4B25-8F04-53B7DD2D60B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8542286-BC8D-4B25-8F04-53B7DD2D60B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8542286-BC8D-4B25-8F04-53B7DD2D60B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D02DC890-1A00-4E3E-AADE-03B299D52880}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D02DC890-1A00-4E3E-AADE-03B299D52880}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D02DC890-1A00-4E3E-AADE-03B299D52880}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D02DC890-1A00-4E3E-AADE-03B299D52880}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E826486C-5A0D-45E8-8C8A-BAD607A0B242}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E826486C-5A0D-45E8-8C8A-BAD607A0B242}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E826486C-5A0D-45E8-8C8A-BAD607A0B242}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E826486C-5A0D-45E8-8C8A-BAD607A0B242}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7309C588-FB01-4799-94B3-B86DC1B315FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7309C588-FB01-4799-94B3-B86DC1B315FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7309C588-FB01-4799-94B3-B86DC1B315FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7309C588-FB01-4799-94B3-B86DC1B315FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{689A1C13-F4CC-44A5-A465-AB2D3C440C3A} = {2657B1F2-BD9C-4E3A-9E89-24CBF58C8680}
+		{D8542286-BC8D-4B25-8F04-53B7DD2D60B5} = {97B75EE9-0B53-4335-8D70-02C506A40675}
+		{2A0A6489-9906-42BC-930A-4028B65804D0} = {97B75EE9-0B53-4335-8D70-02C506A40675}
+		{2F996352-A349-4A19-BBAB-F0C692F0E479} = {97B75EE9-0B53-4335-8D70-02C506A40675}
+		{D02DC890-1A00-4E3E-AADE-03B299D52880} = {2F996352-A349-4A19-BBAB-F0C692F0E479}
+		{E826486C-5A0D-45E8-8C8A-BAD607A0B242} = {2F996352-A349-4A19-BBAB-F0C692F0E479}
+		{7309C588-FB01-4799-94B3-B86DC1B315FC} = {2F996352-A349-4A19-BBAB-F0C692F0E479}
 	EndGlobalSection
 EndGlobal

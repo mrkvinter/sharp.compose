@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="TreeBuilders" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Reference Include="SharpCompose.Drawer.Core">
         <HintPath>..\..\SharpCompose.Drawer\SharpCompose.Drawer.Core\bin\Debug\net6.0\SharpCompose.Drawer.Core.dll</HintPath>
       </Reference>
@@ -18,6 +14,10 @@
     
     <ItemGroup>
         <InternalsVisibleTo Include="SharpCompose.Tests" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\drawers\SharpCompose.Drawer.Core\SharpCompose.Drawer.Core.csproj" />
     </ItemGroup>
 
 </Project>

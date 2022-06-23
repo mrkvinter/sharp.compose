@@ -18,14 +18,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SharpCompose.Base\SharpCompose.Base.csproj" />
-      <ProjectReference Include="..\SharpCompose.WebTags\SharpCompose.WebTags.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="SharpCompose.Drawer.Core">
-        <HintPath>..\..\SharpCompose.Drawer\SharpCompose.Drawer.Core\bin\Debug\net6.0\SharpCompose.Drawer.Core.dll</HintPath>
-      </Reference>
+      <ProjectReference Include="..\..\src\drawers\SharpCompose.Drawer.Core\SharpCompose.Drawer.Core.csproj" />
+      <ProjectReference Include="..\..\src\SharpCompose.Base\SharpCompose.Base.csproj" />
+      <ProjectReference Include="..\..\src\SharpCompose.WebTags\SharpCompose.WebTags.csproj" />
     </ItemGroup>
 
 </Project>
