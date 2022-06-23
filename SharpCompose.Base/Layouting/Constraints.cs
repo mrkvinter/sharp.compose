@@ -1,8 +1,8 @@
 ﻿namespace SharpCompose.Base.Layouting;
 
-public struct Constraints
+public readonly struct Constraints
 {
-    private const int Infinity = int.MaxValue;
+    public const int Infinity = int.MaxValue - 1;
 
     public readonly int MinWidth = 0;
     public readonly int MaxWidth = Infinity;
@@ -35,10 +35,10 @@ public struct Constraints
 
     public Constraints Offset(int horizontal, int vertical)
     {
-        var maxWidth = MaxWidth == Infinity ? MaxWidth : MaxWidth + horizontal;
-        var maxHeight = MaxHeight == Infinity ? MaxHeight : MaxHeight + vertical;
-        var minWidth = MinWidth + horizontal > 0 ? MinWidth + horizontal : 0;
-        var minHeight = MinHeight + vertical > 0 ? MinHeight + vertical : 0;
+        var maxWidth = Math.Max(0, MaxWidth == Infinity ? MaxWidth : MaxWidth + horizontal);
+        var maxHeight = Math.Max(0, MaxHeight == Infinity ? MaxHeight : MaxHeight + vertical);
+        var minWidth = Math.Min(maxWidth, MinWidth + horizontal > 0 ? MinWidth + horizontal : 0);
+        var minHeight = Math.Min(maxHeight, MinHeight + vertical > 0 ? MinHeight + vertical : 0);
 
         return new Constraints(
             minWidth, maxWidth,
