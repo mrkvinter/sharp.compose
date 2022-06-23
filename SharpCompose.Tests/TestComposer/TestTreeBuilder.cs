@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using SharpCompose.Base;
+using FakeItEasy;
+using SharpCompose.Drawer.Core;
 using SharpCompose.WebTags;
 using SharpCompose.WebTags.ElementBuilder;
 
@@ -14,7 +15,7 @@ public class TestTreeBuilder : TreeBuilder
 
     public static HtmlNode Current => nodes.Peek();
 
-    public TestTreeBuilder() : base(new TestCanvas())
+    public TestTreeBuilder() : base(A.Fake<ICanvas>())
     {
     }
 

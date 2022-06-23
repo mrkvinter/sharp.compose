@@ -1,6 +1,6 @@
-using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using FakeItEasy;
 using NUnit.Framework;
 using SharpCompose.Base;
 using SharpCompose.WebTags;
@@ -9,22 +9,13 @@ using TestSharpCompose.TestComposer;
 
 namespace TestSharpCompose;
 
-public class MockInputHandler : IInputHandler
-{
-    public (int x, int y) MousePosition => (0, 0);
-
-    public event Action? MouseDown;
-    public event Action? MouseUp;
-    public event Action<int, int>? MouseMove;
-}
-
 public class ComposeTest
 {
     
     [Test]
     public void StateCompose_ButtonClick_CorrectNewState()
     {
-        var inputHandler = new MockInputHandler();
+        var inputHandler = A.Fake<IInputHandler>();
         var treeBuilder = new TestTreeBuilder();
         TreeBuilder.Instance = treeBuilder;
 
@@ -44,7 +35,7 @@ public class ComposeTest
     [Test]
     public void StateCompose_ButtonClick_CorrectNewFlagState()
     {
-        var inputHandler = new MockInputHandler();
+        var inputHandler = A.Fake<IInputHandler>();
         var treeBuilder = new TestTreeBuilder();
         TreeBuilder.Instance = treeBuilder;
 
@@ -66,7 +57,7 @@ public class ComposeTest
     [Test]
     public async Task LaunchedEffect_ScopedState_StateChanged()
     {
-        var inputHandler = new MockInputHandler();
+        var inputHandler = A.Fake<IInputHandler>();
         var treeBuilder = new TestTreeBuilder();
 
         Composer.Compose(inputHandler, TestWebController.FetchData_ScopedState);
@@ -82,7 +73,7 @@ public class ComposeTest
     [Test, Ignore("Not implemented")]
     public async Task LaunchedEffect_NoScopedState_StateChanged()
     {
-        var inputHandler = new MockInputHandler();
+        var inputHandler = A.Fake<IInputHandler>();
         var treeBuilder = new TestTreeBuilder();
 
         Composer.Compose(inputHandler, TestWebController.FetchData_NoScopedState);
@@ -98,8 +89,8 @@ public class ComposeTest
     [Test]
     public void TestComplex()
     {
-        static void Compose() => Composer.Compose(new MockInputHandler(), TestWebController.ComplexCompose);
-        static void Recompose() => Composer.Compose(new MockInputHandler(), TestWebController.ComplexCompose);
+        static void Compose() => Composer.Compose(A.Fake<IInputHandler>(), TestWebController.ComplexCompose);
+        static void Recompose() => Composer.Compose(A.Fake<IInputHandler>(), TestWebController.ComplexCompose);
 
         var sw = new Stopwatch();
 
