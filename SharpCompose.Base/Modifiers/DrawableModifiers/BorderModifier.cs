@@ -4,7 +4,7 @@ using SharpCompose.Drawer.Core.Shapes;
 
 namespace SharpCompose.Base.Modifiers.DrawableModifiers;
 
-public sealed class BorderModifier : IDrawableModifier
+public sealed class BorderModifier : BaseDrawableModifier
 {
     private readonly int width;
     private readonly Brush brush;
@@ -17,6 +17,6 @@ public sealed class BorderModifier : IDrawableModifier
         this.shape = shape;
     }
 
-    public void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset)
+    protected override void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset)
         => graphics.StrokeShape(offset, shape, size.w, size.h, width, brush);
 }

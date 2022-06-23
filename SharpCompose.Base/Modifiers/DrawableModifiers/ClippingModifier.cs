@@ -3,7 +3,7 @@ using SharpCompose.Drawer.Core.Shapes;
 
 namespace SharpCompose.Base.Modifiers.DrawableModifiers;
 
-public sealed class ClippingModifier : IDrawableModifier
+public sealed class ClippingModifier : BaseDrawableModifier
 {
     private readonly IShape shape;
 
@@ -12,6 +12,6 @@ public sealed class ClippingModifier : IDrawableModifier
         this.shape = shape;
     }
 
-    public void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset)
+    protected override void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset)
         => graphics.Clip(shape, offset, size);
 }

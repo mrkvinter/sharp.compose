@@ -3,7 +3,7 @@ using SharpCompose.Drawer.Core.Brushes;
 
 namespace SharpCompose.Base.Modifiers.DrawableModifiers;
 
-public sealed class BackgroundModifier : IDrawableModifier
+public sealed class BackgroundModifier : BaseDrawableModifier
 {
     private readonly Brush brush;
 
@@ -12,6 +12,6 @@ public sealed class BackgroundModifier : IDrawableModifier
         this.brush = brush;
     }
 
-    public void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset)
+    protected override void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset)
         => graphics.FillRectangle(offset, size, brush);
 }

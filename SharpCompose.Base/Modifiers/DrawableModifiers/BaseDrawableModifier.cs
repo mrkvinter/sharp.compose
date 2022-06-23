@@ -3,9 +3,9 @@ using SharpCompose.Drawer.Core;
 
 namespace SharpCompose.Base.Modifiers.DrawableModifiers;
 
-public interface IDrawableModifier : IModifier.IElement
+public abstract class BaseDrawableModifier : IDrawableLayerModifier
 {
-    Measurable Introduce(Measurable measurable, IGraphics graphics) =>
+    public Measurable Introduce(Measurable measurable, IGraphics graphics) =>
         measurable with
         {
             Measure = constraints =>
@@ -23,5 +23,5 @@ public interface IDrawableModifier : IModifier.IElement
             }
         };
 
-    void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset);
+    protected abstract void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset);
 }

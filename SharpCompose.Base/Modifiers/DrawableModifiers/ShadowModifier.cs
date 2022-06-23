@@ -4,7 +4,7 @@ using SharpCompose.Drawer.Core.Shapes;
 
 namespace SharpCompose.Base.Modifiers.DrawableModifiers;
 
-public sealed class ShadowModifier : IDrawableModifier
+public sealed class ShadowModifier : BaseDrawableModifier
 {
     private readonly (int x, int y) shadowOffset;
     private readonly int blurRadius;
@@ -19,6 +19,6 @@ public sealed class ShadowModifier : IDrawableModifier
         this.shape = shape;
     }
 
-    public void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset)
+    protected override void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset)
         => graphics.DrawShadow(offset, size, shadowOffset, blurRadius, shape, brush);
 }

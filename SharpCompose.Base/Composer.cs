@@ -37,8 +37,6 @@ public class Composer
     public void Init(ICanvas canvas)
     {
         Canvas = canvas;
-
-        BaseCompose.MeasureText = (text, size, font) => canvas.MeasureText(text, size, font);
     }
 
     [RootComposable]
@@ -183,7 +181,7 @@ public class Composer
                 measurable = m switch
                 {
                     ILayoutModifier layoutModifier => layoutModifier.Introduce(measurable),
-                    IDrawableModifier drawableModifier => drawableModifier.Introduce(measurable, graphics),
+                    IDrawableLayerModifier drawableModifier => drawableModifier.Introduce(measurable, graphics),
                     IParentDataModifier parentDataModifier => parentDataModifier.Introduce(measurable),
                     _ => measurable
                 };
