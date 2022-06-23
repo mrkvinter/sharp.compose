@@ -8,7 +8,7 @@ public partial class BaseCompose
 {
     public static void Icon(IImage image, Modifier? modifier = null)
     {
-        IScopeModifier<Modifier> scope = modifier ?? Modifier.With;
+        IScopeModifier<Modifier> scope = modifier ?? Modifier;
         Box(scope
             .Then(new CombinedModifier(
                 new ImageDrawingModifier(image), 

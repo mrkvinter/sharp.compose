@@ -22,7 +22,7 @@ public partial class BaseCompose
         };
         var buttonColor = LocalProviders.Colors.Value.Accent.WithAlpha(alpha);
 
-        Box(Modifier.With
+        Box(Modifier
                 .Clip(Shapes.RoundCorner(4))
                 .BackgroundColor(buttonColor)
                 .Border(contentBorder, 1, Shapes.RoundCorner(4))
@@ -40,7 +40,7 @@ public partial class BaseCompose
                     buttonState.Value = buttonState.Value with {IsPressed = false};
                 })
                 .Padding(24, 12)
-                .Then(modifier ?? Modifier.With),
+                .Then(modifier ?? Modifier),
             content: () =>
             {
                 var textColor = LocalProviders.Colors.Value.OnAccent;

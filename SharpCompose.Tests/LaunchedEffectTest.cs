@@ -2,9 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SharpCompose.Base;
-using SharpCompose.Base.Modifiers;
 using TestSharpCompose.ComposeTester;
-using TestSharpCompose.ComposeTester.Matchers;
 
 namespace TestSharpCompose;
 
@@ -106,8 +104,8 @@ public class LaunchedEffectTest
         var data = Remember.Get(Array.Empty<int>);
         Remember.LaunchedEffect(async () => { data.Value = await GetData() ?? Array.Empty<int>(); });
 
-        Box(Modifier.With.Id("anotherData"), content: () => Text(anotherData.Value.ToString()));
-        Button(() => anotherData.Value++, "+", Modifier.With.Id("button"));
+        Box(Modifier.Id("anotherData"), content: () => Text(anotherData.Value.ToString()));
+        Button(() => anotherData.Value++, "+", Modifier.Id("button"));
 
         if (data.Value.Length == 0)
             Box(content: () => Text("not data"));

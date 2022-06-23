@@ -6,6 +6,8 @@ namespace SharpCompose.Base.ComposesApi;
 
 public partial class BaseCompose
 {
+    public static Modifier Modifier => new();
+
     public static void VoidScope(Action content)
     {
         Composer.Instance.StartScope(IModifier.Empty.Then(new DebugModifier {ScopeName = nameof(VoidScope)}),
