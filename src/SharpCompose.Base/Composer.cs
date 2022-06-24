@@ -12,7 +12,7 @@ public delegate MeasureResult Measure(Measurable[] measures, Constraints constra
 
 public class Composer
 {
-    public static Composer Instance { get; } = new();
+    public static Composer Instance { get; internal set; } = new();
 
     private Scope? root;
     public ICanvas Canvas { get; protected set; } = null!;
@@ -41,12 +41,19 @@ public class Composer
     public static void Compose(IInputHandler inputHandler, Action content)
     {
         Instance.Composing = true;
+        if (Instance.Root.Changed)
+        {
+            Instance.Root.SaveUnused();
+            Instance.Root.Changed = false;
+        }
+
+        // We already have root scope, so we shouldn't run StartScope, because we will not have access to remember table
         Instance.scopes.Push(Instance.Root);
         BaseCompose.CompositionLocalProvider(new[]
         {
             LocalProviders.InputHandler.Provide(inputHandler)
         }, content);
-        Instance.scopes.Pop();
+        Instance.StopScope();
         Instance.Composing = false;
     }
 
