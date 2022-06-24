@@ -2,6 +2,7 @@
 using System.Linq;
 using SharpCompose.Base;
 using SharpCompose.Base.Modifiers;
+using SharpCompose.Drawer.Core;
 using TestSharpCompose.ComposeTester.Matchers;
 
 namespace TestSharpCompose.ComposeTester;
@@ -36,11 +37,15 @@ public static class NodeExtensions
     public static Node PerformClick(this Node node)
     {
         var inputModifier =
-            node.Scope.Modifier.SqueezeModifiers().FirstOrDefault(e => e is OnMouseInputModifier) as
-                OnMouseInputModifier;
-        inputModifier?.OnMouseOver?.Invoke();
-        inputModifier?.OnMouseDown?.Invoke();
-        inputModifier?.OnMouseUp?.Invoke();
+            node.Scope.Modifier.SqueezeModifiers()
+                .Select(e => e as OnMouseInputModifier)
+                .Where(e => e != null)
+                .Cast<OnMouseInputModifier>()
+                .ToArray();
+
+        inputModifier.ForEach(e => e.OnMouseOver?.Invoke());
+        inputModifier.ForEach(e => e.OnMouseDown?.Invoke());
+        inputModifier.ForEach(e => e.OnMouseUp?.Invoke());
 
         return node;
     }
