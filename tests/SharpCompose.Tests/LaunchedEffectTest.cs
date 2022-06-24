@@ -6,6 +6,7 @@ using TestSharpCompose.ComposeTester;
 
 namespace TestSharpCompose;
 
+[NonParallelizable]
 public class LaunchedEffectTest
 {
     [Test]
@@ -25,7 +26,8 @@ public class LaunchedEffectTest
     {
         var composeTester = new ComposeTester.ComposeTester(FetchData_ScopedState);
 
-        await Task.Delay(100);
+        await Task.Delay(200);
+        await composeTester.RecomposeAsync();
         var noData = composeTester.Root.OnNodeWithText("not data");
         var data = composeTester.Root.OnNodeWithText("1 2 3");
 
@@ -38,8 +40,8 @@ public class LaunchedEffectTest
     {
         var composeTester = new ComposeTester.ComposeTester(FetchData_NoScopedState);
 
-        var data = composeTester.Root.OnNodeWithText("not data");
-        var noData = composeTester.Root.OnNodeWithText("1 2 3");
+        var noData = composeTester.Root.OnNodeWithText("not data");
+        var data = composeTester.Root.OnNodeWithText("1 2 3");
 
         Assert.IsNotNull(noData);
         Assert.IsNull(data);
@@ -50,9 +52,10 @@ public class LaunchedEffectTest
     {
         var composeTester = new ComposeTester.ComposeTester(FetchData_NoScopedState);
 
-        await Task.Delay(100);
-        var data = composeTester.Root.OnNodeWithText("not data");
-        var noData = composeTester.Root.OnNodeWithText("1 2 3");
+        await Task.Delay(200);
+        await composeTester.RecomposeAsync();
+        var noData = composeTester.Root.OnNodeWithText("not data");
+        var data = composeTester.Root.OnNodeWithText("1 2 3");
 
         Assert.IsNull(noData);
         Assert.IsNotNull(data);
@@ -64,8 +67,8 @@ public class LaunchedEffectTest
         var composeTester = new ComposeTester.ComposeTester(FetchDataAndAnotherState_NoScopedState);
 
         composeTester.Root.OnNodeWithId("button")?.PerformClick();
-        await Task.Delay(100);
-        var anotherData = composeTester.Root.OnNodeWithId("anotherData")?.OnNodeWithText("2");
+        await composeTester.RecomposeAsync();
+        var anotherData = composeTester.Root.OnNodeWithId("anotherData")?.OnNodeWithText("1");
 
         Assert.IsNotNull(anotherData);
     }
@@ -94,7 +97,7 @@ public class LaunchedEffectTest
         if (data.Value.Length == 0)
             Box(content: () => Text("not data")); //no_data
         else
-            Box(content: () => Text(string.Join(" ", data.Value))); //no_data
+            Box(content: () => Text(string.Join(" ", data.Value))); //data
     }
 
     [Composable]
