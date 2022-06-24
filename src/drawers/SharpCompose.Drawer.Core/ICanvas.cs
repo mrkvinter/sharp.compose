@@ -2,7 +2,7 @@
 
 public interface ICanvas
 {
-    (int w, int h) Size { get; }
+    (int w, int h) Size { get; set; }
 
     void Draw();
 

@@ -5,7 +5,6 @@ using SharpCompose.Drawer.Core.Brushes;
 using VectSharp;
 using VectSharp.Canvas;
 using Brush = SharpCompose.Drawer.Core.Brushes.Brush;
-using Font = SharpCompose.Drawer.Core.Font;
 using LinearGradientBrush = SharpCompose.Drawer.Core.Brushes.LinearGradientBrush;
 
 namespace SharpCompose.Drawer.Avalonia;
@@ -23,12 +22,6 @@ public sealed class CanvasDrawer : ICanvas
     public (int w, int h) Size { get; set; }
 
     public void Draw() => callback.Invoke(page.PaintToCanvas());
-
-    public (int w, int h) MeasureText(string text, double emSize, Font font)
-    {
-        var measuredText = page.Graphics.MeasureText(text, new VectSharp.Font(font.Resolve(), emSize));
-        return ((int) measuredText.Width, (int) measuredText.Height);
-    }
 
     public IGraphics StartGraphics() => new AvaloniaGraphicsWrapper(new Graphics());
 

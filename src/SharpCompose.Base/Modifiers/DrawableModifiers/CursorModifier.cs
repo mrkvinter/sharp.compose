@@ -25,7 +25,7 @@ public static class CursorModifier
         {
 
             var (offset, _) = graphics.MeasureText(text[..cursorPosition], fontSize, font);
-            graphics.FillRectangle((pos.X + offset - 1, pos.Y), (1, size.Height), new SolidColorBrush(Color.Black.WithAlpha(alpha.Value)));
+            graphics.FillRectangle(pos with {X = pos.X + offset - 1}, size with {Width = 1}, new SolidColorBrush(Color.Black.WithAlpha(alpha.Value)));
         }));
     }
     
@@ -66,7 +66,7 @@ public static class CursorModifier
             array[i] = w;
         }
 
-        array[^1] = graphics.MeasureText("_", fontSize, font).w;
+        array[^1] = graphics.MeasureText("_", fontSize, font).Width;
         return array;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using SharpCompose.Base.Layouting;
 using SharpCompose.Drawer.Core;
+using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.Base.Modifiers.DrawableModifiers;
 
@@ -16,12 +17,12 @@ public abstract class BaseDrawableModifier : IDrawableLayerModifier
                 {
                     Placeable = (x, y) =>
                     {
-                        Draw(graphics, (measureResult.Width, measureResult.Height), (x, y));
+                        Draw(graphics, new IntSize(measureResult.Width, measureResult.Height), new IntOffset(x, y));
                         measureResult.Placeable(x, y);
                     }
                 };
             }
         };
 
-    protected abstract void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset);
+    protected abstract void Draw(IGraphics graphics, IntSize size, IntOffset offset);
 }

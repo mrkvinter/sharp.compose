@@ -2,6 +2,7 @@
 using SharpCompose.Base.Modifiers.DrawableModifiers;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Brushes;
+using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.Base.Modifiers;
 
@@ -29,9 +30,9 @@ public sealed class TextDrawModifier : IDrawableLayerModifier
                 var measureResult = measurable.Measure(constraints);
                 var textSize = graphics.MeasureText(Text, fontSize, font);
 
-                return new MeasureResult {Width = textSize.w, Height = textSize.h, Placeable = (x, y) =>
+                return new MeasureResult {Width = textSize.Width, Height = textSize.Height, Placeable = (x, y) =>
                 {
-                    graphics.DrawText(Text, fontSize, font, brush, x, y);
+                    graphics.DrawText(Text, fontSize, font, brush, new IntOffset(x, y));
                     measureResult.Placeable(x, y);
                 }};
             }

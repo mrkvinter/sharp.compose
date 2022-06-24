@@ -2,6 +2,7 @@
 using SharpCompose.Base.Modifiers.LayoutModifiers;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Images;
+using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.Base.Modifiers.DrawableModifiers;
 
@@ -13,7 +14,7 @@ public sealed class ImageDrawingModifier : BaseDrawableModifier
         this.image = image;
     }
 
-    protected override void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset)
+    protected override void Draw(IGraphics graphics, IntSize size, IntOffset offset)
         => graphics.DrawImage(offset, size, image);
 }
 

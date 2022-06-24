@@ -2,6 +2,7 @@
 using SharpCompose.Base.Modifiers.DrawableModifiers;
 using SharpCompose.Drawer.Core.Brushes;
 using SharpCompose.Drawer.Core.Shapes;
+using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.Base.Modifiers.Extensions;
 
@@ -25,7 +26,7 @@ public static class RenderModifierExtensions
         where T : IScopeModifier<T>
         => self.Then(new BorderModifier(width, brush, shape));
 
-    public static T Shadow<T>(this T self, Color? color, (int x, int y)? offset = null, int blurRadius = 0, IShape? shape = null)
+    public static T Shadow<T>(this T self, Color? color, IntOffset? offset = null, int blurRadius = 0, IShape? shape = null)
         where T : IScopeModifier<T>
-        => self.Then(new ShadowModifier(offset ?? (0, 0), blurRadius, new SolidColorBrush(color ?? Color.Black), shape ?? Shapes.Rectangle));
+        => self.Then(new ShadowModifier(offset ?? IntOffset.Zero, blurRadius, new SolidColorBrush(color ?? Color.Black), shape ?? Shapes.Rectangle));
 }

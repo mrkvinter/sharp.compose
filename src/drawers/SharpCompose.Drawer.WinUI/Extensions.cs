@@ -6,17 +6,19 @@ using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.Geometry;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Brushes;
+using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.WinUI;
 
 public static class Extensions
 {
-    public static ICanvasBrush ToCanvasBrush(this Brush brush, ICanvasResourceCreator canvasResourceCreator, (int x, int y) point, (int w, int h) size) => brush switch
+    public static ICanvasBrush ToCanvasBrush(this Brush brush, ICanvasResourceCreator canvasResourceCreator,
+        IntOffset point, IntSize size) => brush switch
     {
         LinearGradientBrush linearGradientBrush => new CanvasLinearGradientBrush(canvasResourceCreator, linearGradientBrush.FirstColor.ToColor(), linearGradientBrush.SecondColor.ToColor())
         {
-            StartPoint = new Vector2(point.x + size.w * linearGradientBrush.FirstPoint.Item1, point.y + size.h * linearGradientBrush.FirstPoint.Item2),
-            EndPoint = new Vector2(point.x + size.w * linearGradientBrush.SecondPoint.Item1, point.y + size.h * linearGradientBrush.SecondPoint.Item2)
+            StartPoint = new Vector2(point.X + size.Width * linearGradientBrush.FirstPoint.Item1, point.Y + size.Height * linearGradientBrush.FirstPoint.Item2),
+            EndPoint = new Vector2(point.X + size.Width * linearGradientBrush.SecondPoint.Item1, point.Y + size.Height * linearGradientBrush.SecondPoint.Item2)
         },
 
         SolidColorBrush solidColorBrush => new CanvasSolidColorBrush(canvasResourceCreator, solidColorBrush.Color.ToColor()),

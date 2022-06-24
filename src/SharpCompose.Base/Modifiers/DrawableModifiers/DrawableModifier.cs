@@ -1,16 +1,16 @@
-﻿using SharpCompose.Base.Utilities;
-using SharpCompose.Drawer.Core;
+﻿using SharpCompose.Drawer.Core;
+using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.Base.Modifiers.DrawableModifiers;
 
 public sealed class DrawableModifier : BaseDrawableModifier
 {
-    private readonly Action<IGraphics, IntSize, IntVector2> draw;
-    public DrawableModifier(Action<IGraphics, IntSize, IntVector2> draw)
+    private readonly Action<IGraphics, IntSize, IntOffset> draw;
+    public DrawableModifier(Action<IGraphics, IntSize, IntOffset> draw)
     {
         this.draw = draw;
     }
 
-    protected override void Draw(IGraphics graphics, (int w, int h) size, (int x, int y) offset) => draw(graphics,
-        new IntSize(size.w, size.h), new IntVector2(offset.x, offset.y));
+    protected override void Draw(IGraphics graphics, IntSize size, IntOffset offset) => draw(graphics,
+        new IntSize(size.Width, size.Height), new IntOffset(offset.X, offset.Y));
 }
