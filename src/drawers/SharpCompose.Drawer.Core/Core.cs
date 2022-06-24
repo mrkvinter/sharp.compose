@@ -1,34 +1,6 @@
-﻿using System.Drawing;
-using SharpCompose.Drawer.Core.Brushes;
-
-namespace SharpCompose.Drawer.Core;
-
-public struct Border
-{
-    public readonly Brush Brush;
-    public readonly int Width;
-
-    public Border()
-    {
-        Brush = SolidColorBrush.White;
-        Width = 0;
-    }
-    
-    public Border(Brush brush, int width)
-    {
-        Brush = brush;
-        Width = width;
-    }
-}
-
-public readonly record struct Corners(int TopLeft, int TopRight, int BottomLeft, int BottomRight)
-{
-    public bool HasAnyCorner => TopLeft + TopRight + BottomLeft + BottomRight > 0;
-}
+﻿namespace SharpCompose.Drawer.Core;
 
 public readonly record struct Rect(int X, int Y, int Width, int Height);
-
-public readonly record struct ShadowInfo(Color Color, (int x, int y) Offset, float BlurRadius);
 
 public class Font
 {
