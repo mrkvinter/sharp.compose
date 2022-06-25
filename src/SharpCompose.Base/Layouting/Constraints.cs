@@ -45,6 +45,22 @@ public readonly struct Constraints
             minHeight, maxHeight);
     }
 
+    public int ClampWidth(int width)
+    {
+        if (width < MinWidth) return MinWidth;
+        if (width > MaxWidth) return MaxWidth;
+        
+        return width;
+    }
+    
+    public int ClampHeight(int height)
+    {
+        if (height < MinHeight) return MinHeight;
+        if (height > MaxHeight) return MaxHeight;
+        
+        return height;
+    }
+
     public override string ToString() =>
         $"Constraints(minWidth = {MinWidth}, maxWidth = {(MaxWidth == Infinity ? "Infinity" : MaxWidth)}, " +
         $"minHeight = {MinHeight}, maxHeight = {(MaxHeight == Infinity ? "Infinity" : MaxHeight)})";

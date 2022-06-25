@@ -36,15 +36,21 @@ public sealed class WinUIGraphics : IGraphics
         layer = null;
     }
 
-    public IntSize MeasureText(string text, double emSize, Font font)
+    public IntSize MeasureText(string text, double emSize, Font font, TextAlignment textAlignment, IntSize maxSize)
     {
         var format = new CanvasTextFormat
         {
             FontSize = (float)emSize,
             FontFamily = font.FontFamily,
+            HorizontalAlignment = textAlignment switch
+            {
+                TextAlignment.Left => CanvasHorizontalAlignment.Left,
+                TextAlignment.Center => CanvasHorizontalAlignment.Center,
+                TextAlignment.Right => CanvasHorizontalAlignment.Right,
+                _ => throw new ArgumentOutOfRangeException(nameof(textAlignment), textAlignment, null)
+            }
         };
-        using var canvasTextLayout = new CanvasTextLayout(canvasResourceCreator, text, format, float.MaxValue, float.MaxValue);
-
+        using var canvasTextLayout = new CanvasTextLayout(canvasResourceCreator, text, format, maxSize.Width, maxSize.Height);
         return new IntSize((int)canvasTextLayout.LayoutBounds.Width, (int)canvasTextLayout.LayoutBounds.Height);
     }
 
@@ -96,7 +102,8 @@ public sealed class WinUIGraphics : IGraphics
         };
     }
 
-    public void DrawText(string text, double emSize, Font font, Brush brush, IntOffset offset)
+    public void DrawText(string text, double emSize, Font font, Brush brush, IntOffset offset,
+        TextAlignment textAlignment, IntSize maxSize)
     {
         CanvasTextLayout canvasTextLayout = null;
         Draw += canvas =>
@@ -107,8 +114,15 @@ public sealed class WinUIGraphics : IGraphics
                 {
                     FontSize = (float)emSize,
                     FontFamily = font.FontFamily,
+                    HorizontalAlignment = textAlignment switch
+                    {
+                        TextAlignment.Left => CanvasHorizontalAlignment.Left,
+                        TextAlignment.Center => CanvasHorizontalAlignment.Center,
+                        TextAlignment.Right => CanvasHorizontalAlignment.Right,
+                        _ => throw new ArgumentOutOfRangeException(nameof(textAlignment), textAlignment, null)
+                    }
                 };
-                canvasTextLayout = new CanvasTextLayout(canvas, text, format, float.MaxValue, float.MaxValue);
+                canvasTextLayout = new CanvasTextLayout(canvas, text, format, maxSize.Width, maxSize.Height);
             }
 
             

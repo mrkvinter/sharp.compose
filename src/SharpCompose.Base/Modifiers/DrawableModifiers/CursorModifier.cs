@@ -3,6 +3,7 @@ using SharpCompose.Base.ComposesApi.Providers;
 using SharpCompose.Base.Modifiers.Extensions;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Brushes;
+using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.Base.Modifiers.DrawableModifiers;
 
@@ -24,7 +25,7 @@ public static class CursorModifier
         return self.Then(new DrawableModifier((graphics, size, pos) =>
         {
 
-            var (offset, _) = graphics.MeasureText(text[..cursorPosition], fontSize, font);
+            var (offset, _) = graphics.MeasureText(text[..cursorPosition], fontSize, font, TextAlignment.Left, new IntSize(Int32.MaxValue, Int32.MaxValue));
             graphics.FillRectangle(pos with {X = pos.X + offset - 1}, size with {Width = 1}, new SolidColorBrush(Color.Black.WithAlpha(alpha.Value)));
         }));
     }
@@ -62,11 +63,11 @@ public static class CursorModifier
         for (var i = 0; i < text.Length; i++)
         {
             var c = text[i];
-            var (w, _) = graphics.MeasureText(c.ToString(), fontSize, font);
+            var (w, _) = graphics.MeasureText(c.ToString(), fontSize, font, TextAlignment.Left, new IntSize(Int32.MaxValue, Int32.MaxValue));
             array[i] = w;
         }
 
-        array[^1] = graphics.MeasureText("_", fontSize, font).Width;
+        array[^1] = graphics.MeasureText("_", fontSize, font, TextAlignment.Left, new IntSize(Int32.MaxValue, Int32.MaxValue)).Width;
         return array;
     }
 }

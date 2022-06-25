@@ -51,14 +51,15 @@ internal sealed class AvaloniaGraphicsWrapper : IGraphics
         graphics.StrokePath(path, brush.ToVectBrush(new Rect(offset.X, offset.Y, size.Width, size.Height)), lineWidth);
     }
 
-    public void DrawText(string text, double emSize, Font font, Brush brush, IntOffset offset)
+    public void DrawText(string text, double emSize, Font font, Brush brush, IntOffset offset,
+        TextAlignment textAlignment, IntSize maxSize)
     {
         if (text.Length == 0)
             return;
 
         var fontFamily = font.Resolve();
         var vectFont = new VectSharp.Font(fontFamily, emSize);
-        var measure = MeasureText(text, emSize, font);
+        var measure = MeasureText(text, emSize, font, textAlignment, maxSize);
         var rect = new Rect(offset.X, offset.Y, measure.Width, measure.Height);
         graphics.FillText(offset.X, offset.Y, text, vectFont, brush.ToVectBrush(rect));
     }
@@ -130,7 +131,7 @@ internal sealed class AvaloniaGraphicsWrapper : IGraphics
         graphics = new Graphics();
     }
 
-    public IntSize MeasureText(string text, double emSize, Font font)
+    public IntSize MeasureText(string text, double emSize, Font font, TextAlignment textAlignment, IntSize maxSize)
     {
         var textToCheck = text.Length == 0 ? "1" : text;
         var measuredText = new VectSharp.Font(font.Resolve(), emSize).MeasureTextAdvanced(textToCheck); 
