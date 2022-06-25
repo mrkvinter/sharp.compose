@@ -6,7 +6,7 @@ namespace SharpCompose.Base.ComposesApi;
 
 public partial class BaseCompose
 {
-    public static Modifier Modifier => new();
+    public static ScopeModifier Modifier => new();
 
     public static void VoidScope(Action content)
     {

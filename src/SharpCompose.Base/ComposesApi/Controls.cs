@@ -9,7 +9,7 @@ public partial class BaseCompose
 {
     private readonly record struct ButtonState(bool IsHovered, bool IsPressed);
 
-    public static void Button(Action onClick, string label, Modifier? modifier = null)
+    public static void Button(Action onClick, string label, ScopeModifier? modifier = null)
     {
         var contentBorder =
             new LinearGradientBrush("#14FFFFFF".AsColor(), "#000000".AsColor(), (0.5f, 0.95f), (0.5f, 1));

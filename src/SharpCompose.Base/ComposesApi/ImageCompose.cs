@@ -6,9 +6,9 @@ namespace SharpCompose.Base.ComposesApi;
 
 public partial class BaseCompose
 {
-    public static void Icon(IImage image, Modifier? modifier = null)
+    public static void Icon(IImage image, ScopeModifier? modifier = null)
     {
-        IScopeModifier<Modifier> scope = modifier ?? Modifier;
+        IScopeModifier<ScopeModifier> scope = modifier ?? Modifier;
         Box(scope
             .Then(new CombinedModifier(
                 new ImageDrawingModifier(image), 

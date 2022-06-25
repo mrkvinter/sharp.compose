@@ -1,7 +1,7 @@
 ﻿namespace SharpCompose.Base.Modifiers;
 
 
-public class Modifier : IScopeModifier<Modifier>
+public class ScopeModifier : IScopeModifier<ScopeModifier>
 {
     public IModifier SelfModifier { get; set; } = IModifier.Empty;
 }
