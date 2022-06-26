@@ -5,7 +5,7 @@ namespace SharpCompose.Base.ComposesApi;
 
 public static partial class BaseCompose
 {
-    private static void Layout(IModifier modifier, Action? content, Measure measure)
+    public static void Layout(IModifier modifier, Action? content, Measure measure)
     {
         Composer.Instance.StartScope(modifier, measure);
         content?.Invoke();

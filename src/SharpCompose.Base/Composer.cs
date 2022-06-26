@@ -65,6 +65,7 @@ public class Composer
         Instance.RecomposingAsk = false;
         var (width, height) = Instance.Canvas.Size;
 
+        Instance.Root.ClearGraphics();
         Instance.Root
             .Measurable.Measure(new Constraints(0, width, 0, height))
             .Placeable(0, 0);
@@ -109,9 +110,10 @@ public class Composer
         var scope = Remember.Get(Creator).Value;
         scopes.Peek().UnusedChildren.Remove(scope);
 
+        scope.SaveUnused();
+
         if (scope.Changed)
         {
-            scope.SaveUnused();
             scope.Update(modifier);
             scope.Changed = false;
         }
@@ -162,13 +164,18 @@ public class Composer
 
         public Measurable Measurable { get; private set; }
 
+        public void ClearGraphics()
+        {
+            graphics.Clear();
+            children.ForEach(e => e.ClearGraphics());
+        }
+
         private Measurable GetMeasure()
         {
             var measurable = new Measurable
             {
                 Measure = constraints =>
                 {
-                    graphics.Clear();
                     return measure(children
                         .Select(e => e.Measurable).ToArray(), constraints);
                 }
