@@ -7,7 +7,7 @@ namespace SharpCompose.Base.ComposesApi;
 
 public partial class BaseCompose
 {
-    private readonly record struct ButtonState(bool IsHovered, bool IsPressed);
+    public readonly record struct ButtonState(bool IsHovered, bool IsPressed);
 
     public static void Button(Action onClick, string label, ScopeModifier? modifier = null)
     {

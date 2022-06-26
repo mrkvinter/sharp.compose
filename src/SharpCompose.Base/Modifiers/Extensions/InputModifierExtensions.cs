@@ -1,10 +1,31 @@
-﻿using SharpCompose.Base.ComposesApi.Providers;
+﻿using SharpCompose.Base.ComposesApi;
+using SharpCompose.Base.ComposesApi.Providers;
 using SharpCompose.Base.Input;
 
 namespace SharpCompose.Base.Modifiers.Extensions;
 
 public static class InputModifierExtensions
 {
+    public static T Clickable<T>(this T self, Action callback) where T : IScopeModifier<T>
+    {
+        var buttonState = Remember.Get(new BaseCompose.ButtonState());
+
+        return self
+            .OnMouseOver(() => buttonState.Value = buttonState.Value with {IsHovered = true})
+            .OnMouseOut(() => buttonState.Value = buttonState.Value with {IsHovered = false})
+            .OnMouseDown(() =>
+            {
+                if (buttonState.Value.IsHovered) buttonState.Value = buttonState.Value with {IsPressed = true};
+            })
+            .OnMouseUp(() =>
+            {
+                if (buttonState.Value.IsPressed && buttonState.Value.IsHovered)
+                    callback();
+
+                buttonState.Value = buttonState.Value with {IsPressed = false};
+            });
+    }
+
     public static T OnMouseOver<T>(this T self, Action callback) where T : IScopeModifier<T>
     {
         var boundState = Remember.Get(new BoundState());
