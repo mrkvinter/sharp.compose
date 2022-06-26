@@ -42,6 +42,7 @@ public sealed class WinUIGraphics : IGraphics
         {
             FontSize = (float)emSize,
             FontFamily = font.FontFamily,
+            FontWeight = font.FontWeight.ToFontWeight(),
             HorizontalAlignment = textAlignment switch
             {
                 TextAlignment.Left => CanvasHorizontalAlignment.Left,
@@ -114,6 +115,7 @@ public sealed class WinUIGraphics : IGraphics
                 {
                     FontSize = (float)emSize,
                     FontFamily = font.FontFamily,
+                    FontWeight = font.FontWeight.ToFontWeight(),
                     HorizontalAlignment = textAlignment switch
                     {
                         TextAlignment.Left => CanvasHorizontalAlignment.Left,

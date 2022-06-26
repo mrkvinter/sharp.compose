@@ -4,6 +4,7 @@ using Windows.UI;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.Geometry;
+using Microsoft.UI.Text;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Brushes;
 using SharpCompose.Drawer.Core.Utilities;
@@ -65,4 +66,18 @@ public static class Extensions
         }
         return CanvasGeometry.CreatePath(pathBuilder);
     }
+
+    public static Windows.UI.Text.FontWeight ToFontWeight(this FontWeight fontWeight) => fontWeight switch
+    {
+        {Weight: <= 100} => FontWeights.Thin,
+        {Weight: <= 200} => FontWeights.ExtraLight,
+        {Weight: <= 300} => FontWeights.Light,
+        {Weight: <= 400} => FontWeights.Normal,
+        {Weight: <= 500} => FontWeights.Medium,
+        {Weight: <= 600} => FontWeights.SemiBold,
+        {Weight: <= 700} => FontWeights.Bold,
+        {Weight: <= 800} => FontWeights.ExtraBold,
+        {Weight: <= 900} => FontWeights.Black,
+        _ => throw new ArgumentOutOfRangeException(nameof(fontWeight), fontWeight, null)
+    };
 }

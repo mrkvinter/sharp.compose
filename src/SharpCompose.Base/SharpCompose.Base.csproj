@@ -6,6 +6,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <Optimize>false</Optimize>
+    </PropertyGroup>
+
     <ItemGroup>
       <Reference Include="SharpCompose.Drawer.Core">
         <HintPath>..\..\SharpCompose.Drawer\SharpCompose.Drawer.Core\bin\Debug\net6.0\SharpCompose.Drawer.Core.dll</HintPath>
