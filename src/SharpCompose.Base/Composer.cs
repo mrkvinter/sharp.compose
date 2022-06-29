@@ -37,7 +37,7 @@ public class Composer
         Canvas = canvas;
     }
 
-    [RootComposable]
+    [RootComposableApi]
     public static void Compose(IInputHandler inputHandler, Action content)
     {
         Instance.Composing = true;
@@ -107,7 +107,7 @@ public class Composer
             return createdScope;
         }
 
-        var scope = Remember.Get(Creator).Value;
+        var scope = Remember.Get(() => new MutableState<Scope>(Creator())).Value;
         scopes.Peek().UnusedChildren.Remove(scope);
 
         scope.SaveUnused();

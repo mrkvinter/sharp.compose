@@ -6,6 +6,11 @@ public class ComposableAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Method)]
-public class RootComposableAttribute : Attribute
+public class ComposableApiAttribute : Attribute
+{
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class RootComposableApiAttribute : ComposableApiAttribute
 {
 }

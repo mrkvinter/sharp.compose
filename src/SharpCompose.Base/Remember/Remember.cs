@@ -113,22 +113,26 @@ public static class Remember
 
         var value = creator();
 
-        return current.Remembered.AddRemembered(key, value);
-    }
-
-    private static string GetKey()
+    [ComposableApi]
+    private static string GetKey(string postfix = "")
     {
         var st = new StackTrace();
         var key = new StringBuilder();
         foreach (var stackFrame in st.GetFrames())
         {
-            key.Append($"{stackFrame.GetILOffset()}-");
+            if (stackFrame.GetMethod()?.GetCustomAttribute<ComposableApiAttribute>() is { } apiAttribute)
+            {
+                if (apiAttribute is RootComposableApiAttribute)
+                    break;
 
-            if (stackFrame.GetMethod()?.GetCustomAttribute(typeof(RootComposableAttribute)) != null)
-                break;
+                continue;
+            }
+
+            key.Append($"{stackFrame.GetNativeOffset()}-");
         }
 
         key.Append(LoopIndex);
+        key.Append(postfix);
 
         return key.ToString();
     }
