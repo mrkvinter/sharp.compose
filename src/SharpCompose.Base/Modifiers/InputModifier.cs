@@ -12,14 +12,14 @@ public record struct MouseState(bool IsOver);
 
 public sealed class OnMouseInputModifier : IInputModifier
 {
-    private readonly ValueRemembered<BoundState> boundState;
+    private readonly MutableState<BoundState> boundState;
 
     public Action? OnMouseOver { get; init; }
     public Action? OnMouseOut { get; init; }
     public Action? OnMouseDown { get; init; }
     public Action? OnMouseUp { get; init; }
 
-    public OnMouseInputModifier(ValueRemembered<BoundState> boundState)
+    public OnMouseInputModifier(MutableState<BoundState> boundState)
     {
         this.boundState = boundState;
     }

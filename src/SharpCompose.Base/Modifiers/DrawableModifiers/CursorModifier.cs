@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using SharpCompose.Base.ComposesApi.Providers;
+using SharpCompose.Base.Extensions;
 using SharpCompose.Base.Modifiers.Extensions;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Brushes;
@@ -13,7 +14,7 @@ public static class CursorModifier
     {
         var fontSize = LocalProviders.TextStyle.Value.FontSize; 
         var font = LocalProviders.TextStyle.Value.Font;
-        var alpha = Remember.Get(cursorPosition, () => 0f);
+        var alpha = Remember.Get(cursorPosition, () => 0f.AsMutableState());
         Remember.LaunchedEffect(cursorPosition, async ct =>
         {
             while (!ct.IsCancellationRequested)
@@ -30,9 +31,9 @@ public static class CursorModifier
         }));
     }
     
-    public static T OnTextClick<T>(this T self, string text, ValueRemembered<int> cursorPosition) where T : IScopeModifier<T>
+    public static T OnTextClick<T>(this T self, string text, MutableState<int> cursorPosition) where T : IScopeModifier<T>
     {
-        var carriageSize = Remember.Get(Array.Empty<int>());
+        var carriageSize = Remember.Get(() => Array.Empty<int>().AsMutableState());
         var fontSize = LocalProviders.TextStyle.Value.FontSize; 
         var font = LocalProviders.TextStyle.Value.Font;
         var inputHandler = LocalProviders.InputHandler.Value!;

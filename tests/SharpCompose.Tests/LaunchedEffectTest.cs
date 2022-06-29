@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SharpCompose.Base;
+using SharpCompose.Base.Extensions;
 using TestSharpCompose.ComposeTester;
 
 namespace TestSharpCompose;
@@ -76,8 +77,8 @@ public class LaunchedEffectTest
     [Composable]
     private static void FetchData_ScopedState()
     {
-        var data = Remember.Get(Array.Empty<int>);
-        Remember.LaunchedEffect(async () => { data.Value = await GetData() ?? Array.Empty<int>(); });
+        var data = Remember.Get(() => Array.Empty<int>().AsMutableState());
+        Remember.LaunchedEffect(true, async _ => { data.Value = await GetData() ?? Array.Empty<int>(); });
 
         Box(content: () =>
         {
@@ -91,8 +92,8 @@ public class LaunchedEffectTest
     [Composable]
     private static void FetchData_NoScopedState()
     {
-        var data = Remember.Get(Array.Empty<int>);
-        Remember.LaunchedEffect(async () => { data.Value = await GetData() ?? Array.Empty<int>(); });
+        var data = Remember.Get(() => Array.Empty<int>().AsMutableState());
+        Remember.LaunchedEffect(true, async _ => { data.Value = await GetData() ?? Array.Empty<int>(); });
 
         if (data.Value.Length == 0)
             Box(content: () => Text("not data")); //no_data
@@ -103,9 +104,9 @@ public class LaunchedEffectTest
     [Composable]
     private static void FetchDataAndAnotherState_NoScopedState()
     {
-        var anotherData = Remember.Get(0);
-        var data = Remember.Get(Array.Empty<int>);
-        Remember.LaunchedEffect(async () => { data.Value = await GetData() ?? Array.Empty<int>(); });
+        var anotherData = Remember.Get(() => 0.AsMutableState());
+        var data = Remember.Get(() => Array.Empty<int>().AsMutableState());
+        Remember.LaunchedEffect(true, async _ => { data.Value = await GetData() ?? Array.Empty<int>(); });
 
         Box(Modifier.Id("anotherData"), content: () => Text(anotherData.Value.ToString()));
         Button(() => anotherData.Value++, "+", Modifier.Id("button"));
@@ -115,7 +116,7 @@ public class LaunchedEffectTest
         else
             Box(content: () => Text(string.Join(" ", data.Value)));
     }
-    
+
     private static async Task<int[]?> GetData()
     {
         await Task.Delay(100);

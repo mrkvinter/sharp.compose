@@ -4,13 +4,13 @@ namespace SharpCompose.Base;
 
 public class Remembered
 {
-    private readonly Dictionary<string, IValueRemembered> remembered = new();
+    private readonly Dictionary<string, object> remembered = new();
 
-    public IEnumerable<object?> RememberedValues => remembered.Values.Select(e => e.InternalValue);
+    public IEnumerable<object?> RememberedValues => remembered.Values.Select(e => e);
 
-    public bool TryGetNextRemembered<T>(string key, [MaybeNullWhen(false)] out ValueRemembered<T> result)
+    public bool TryGetNextRemembered<T>(string key, [MaybeNullWhen(false)] out T result)
     {
-        if (remembered.ContainsKey(key) && remembered[key] is ValueRemembered<T> val)
+        if (remembered.ContainsKey(key) && remembered[key] is T val)
         {
             result = val;
 
@@ -21,17 +21,15 @@ public class Remembered
         return false;
     }
 
-    public ValueRemembered<T> AddRemembered<T>(string key, T value, Action? onRemember = null, Action? onForgotten = null)
-    {
-        var v = new ValueRemembered<T>(value, onForgotten);
-        remembered.Add(key, v);
+    public void AddRemembered<T>(string key, T value) =>
+        remembered.Add(key, value);
 
-        return v;
-    }
+    public void RemoveRemembered(string key) =>
+        remembered.Remove(key);
 
-    public ValueRemembered<T> SetRemembered<T>(string key, T value, Action? onRemember = null, Action? onForgotten = null)
+    public MutableState<T> SetRemembered<T>(string key, T value, Action? onRemember = null, Action? onForgotten = null)
     {
-        var v = new ValueRemembered<T>(value, onForgotten);
+        var v = new MutableState<T>(value, onForgotten);
         remembered[key] = v;
 
         return v;
@@ -43,14 +41,14 @@ public class Remembered
     }
 }
 
-internal interface IValueRemembered
+internal interface IState
 {
     public object InternalValue { get; set; }
 }
 
-public class ValueRemembered<TValue> : IValueRemembered
+public class MutableState<TValue> : IState
 {
-    private readonly IValueRemembered thisRemembered;
+    private readonly IState thisRemembered;
     private readonly HashSet<Composer.Scope> scopeToChange = new();
     private readonly Action? onForget;
 
@@ -84,7 +82,8 @@ public class ValueRemembered<TValue> : IValueRemembered
             SetChange(scopeChild);
         }
     }
-    public ValueRemembered(TValue value, Action? onForget = null)
+
+    public MutableState(TValue value, Action? onForget = null)
     {
         this.onForget = onForget;
         thisRemembered = this;
@@ -96,5 +95,5 @@ public class ValueRemembered<TValue> : IValueRemembered
         onForget?.Invoke();
     }
 
-    object IValueRemembered.InternalValue { get; set; } = null!;
+    object IState.InternalValue { get; set; } = null!;
 }

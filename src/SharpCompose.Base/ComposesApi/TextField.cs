@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using SharpCompose.Base.ComposesApi.Providers;
+using SharpCompose.Base.Extensions;
 using SharpCompose.Base.Input;
 using SharpCompose.Base.Modifiers.DrawableModifiers;
 using SharpCompose.Base.Modifiers.Extensions;
@@ -11,10 +12,10 @@ public partial class BaseCompose
 {
     public static void TextField(string value, Action<string> onValueChanged)
     {
-        var internalValue = Remember.Get(value);
+        var internalValue = Remember.Get(() => value.AsMutableState());
         internalValue.Value = value;
 
-        var cursorPosition = Remember.Get(0);
+        var cursorPosition = Remember.Get(() => 0.AsMutableState());
         if (cursorPosition.Value > internalValue.Value.Length)
             cursorPosition.Value = internalValue.Value.Length;
 

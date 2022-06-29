@@ -1,22 +1,8 @@
-using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
 namespace SharpCompose.Base;
-
-public class RememberEnumerable<T> : IEnumerable<T>
-{
-    public IEnumerator<T> GetEnumerator()
-    {
-        throw new NotImplementedException();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-}
 
 public static class Remember
 {
@@ -44,7 +30,36 @@ public static class Remember
 
     public static LoopIndexController StartLoopIndex() => new();
 
-    public static ValueRemembered<T> Get<T>(Func<T> creator)
+    [ComposableApi]
+    private static void ForgetInternal<T>(string postfixKey)
+    {
+        var key = GetKey(postfixKey);
+        var current = Composer.Instance.Current!;
+        if (!current.Remembered.TryGetNextRemembered<T>(key, out var result)) return;
+        if (result is IRememberObserver rememberObserver) rememberObserver.OnForgotten();
+        current.Remembered.RemoveRemembered(key);
+    }
+
+    [ComposableApi]
+    private static T GetInternal<T>(string postfixKey, Func<T> creator)
+    {
+        var key = GetKey(postfixKey);
+        var current = Composer.Instance.Current!;
+        if (current.Remembered.TryGetNextRemembered<T>(key, out var result))
+        {
+            return result;
+        }
+
+        var value = creator();
+
+        current.Remembered.AddRemembered(key, value);
+        if (value is IRememberObserver rememberObserver) rememberObserver.OnRemember();
+
+        return value;
+    }
+
+    [ComposableApi]
+    public static T Get<T>(Func<T> creator)
     {
         var key = GetKey();
         var current = Composer.Instance.Current!;
@@ -55,63 +70,57 @@ public static class Remember
 
         var value = creator();
 
-        return current.Remembered.AddRemembered(key, value);
+        current.Remembered.AddRemembered(key, value);
+        if (value is IRememberObserver rememberObserver) rememberObserver.OnRemember();
+
+        return value;
     }
 
-    public static ValueRemembered<T> Get<TKey1, T>(TKey1 key1, Func<T> creator, Action? onRemembered = null,
-        Action? onForgotten = null)
+    [ComposableApi]
+    public static T Get<TKey, T>(TKey key, Func<T> creator)
     {
-        var iKey1 = GetKey() + "key_1";
-        var iKeyVal = GetKey() + "val";
-        var current = Composer.Instance.Current!;
-        var changed = false;
-        var remembered = current.Remembered.TryGetNextRemembered<T>(iKeyVal, out var result);
+        const string keyPostfix = "_key";
+        const string valuePostfix = "_val";
+        var rememberedKey = GetInternal(keyPostfix, () => key);
 
-        if (!current.Remembered.TryGetNextRemembered<TKey1>(iKey1, out var key1Val))
-        {
-            changed = true;
-            current.Remembered.AddRemembered(iKey1, key1);
-        }
-        else if (!key1.Equals(key1Val.Value))
-        {
-            changed = true;
-            key1Val.Value = key1;
-        }
+        if (!rememberedKey!.Equals(key))
+            ForgetInternal<T>(valuePostfix);
 
-        if (remembered && changed)
-            onForgotten?.Invoke();
-
-        if (!remembered || changed)
-        {
-            onRemembered?.Invoke();
-
-            var value = creator();
-
-            if (!remembered)
-                return current.Remembered.AddRemembered(iKeyVal, value);
-
-            result.Value = value;
-        }
-
-        return result;
+        return GetInternal(valuePostfix, creator);
     }
 
-    public static ValueRemembered<T> Get<T>(T value)
+    [ComposableApi]
+    public static T Get<TKey1, TKey2, T>(TKey1 key1, TKey2 key2, Func<T> creator)
     {
-        return Get(() => value);
+        const string key1Postfix = "_key1";
+        const string key2Postfix = "_key2";
+        const string valuePostfix = "_val";
+        var rememberedKey1 = GetInternal(key1Postfix, () => key1);
+        var rememberedKey2 = GetInternal(key2Postfix, () => key2);
+
+        if (!rememberedKey1!.Equals(key1) || !rememberedKey2!.Equals(key2))
+            ForgetInternal<T>(valuePostfix);
+
+        return GetInternal(valuePostfix, creator);
     }
 
-    public static ValueRemembered<T> GetEnumerable<T, V>(Func<T> creator) where T : IEnumerable<V>
+    [ComposableApi]
+    public static T Get<TKey1, TKey2, TKey3, T>(TKey1 key1, TKey2 key2, TKey3 key3, Func<T> creator)
     {
-        throw new NotImplementedException();
-        var key = GetKey();
-        var current = Composer.Instance.Current!;
-        if (current.Remembered.TryGetNextRemembered<T>(key, out var result))
-        {
-            return result;
-        }
+        const string key1Postfix = "_key1";
+        const string key2Postfix = "_key2";
+        const string key3Postfix = "_key3";
+        const string valuePostfix = "_val";
+        var rememberedKey1 = GetInternal(key1Postfix, () => key1);
+        var rememberedKey2 = GetInternal(key2Postfix, () => key2);
+        var rememberedKey3 = GetInternal(key3Postfix, () => key3);
 
-        var value = creator();
+        if (!rememberedKey1!.Equals(key1) || !rememberedKey2!.Equals(key2) || !rememberedKey3!.Equals(key3))
+            ForgetInternal<T>(valuePostfix);
+
+        return GetInternal(valuePostfix, creator);
+    }
+
 
     [ComposableApi]
     private static string GetKey(string postfix = "")
@@ -137,36 +146,17 @@ public static class Remember
         return key.ToString();
     }
 
-    public static void LaunchedEffect(Action action)
-    {
-        Get<Unit>(() =>
+    [ComposableApi]
+    public static ILaunchedEffect LaunchedEffect<T>(T key, Func<CancellationToken, Task> action)
+        => Get(key, () => new LaunchedEffectImpl(action));
+
+    [ComposableApi]
+    public static ILaunchedEffect LaunchedEffect<T>(T key, Action action)
+        => Get(key, () => new LaunchedEffectImpl(_ =>
         {
             action();
-
-            return default;
-        });
-    }
-
-    public static void LaunchedEffect(Func<Task> action)
-    {
-        Get<Unit>(() =>
-        {
-            action();
-
-            return default;
-        });
-    }
-
-    public static void LaunchedEffect<T>(T key, Func<CancellationToken, Task> action)
-    {
-        var cts = Get(new CancellationTokenSource());
-        Get(key, 
-            async () => { await action(cts.Value.Token); }, 
-            () => cts.Value = new CancellationTokenSource(), 
-            () => cts.Value.Cancel());
-    }
-
-    public static void DisposeEffect(Action action) => Get(() => new DisposableEffect(action));
+            return Task.CompletedTask;
+        }));
 
     internal sealed class DisposableEffect : IDisposable
     {

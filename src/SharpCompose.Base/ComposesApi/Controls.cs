@@ -1,4 +1,5 @@
 ﻿using SharpCompose.Base.ComposesApi.Providers;
+using SharpCompose.Base.Extensions;
 using SharpCompose.Base.Modifiers;
 using SharpCompose.Base.Modifiers.Extensions;
 using SharpCompose.Drawer.Core.Brushes;
@@ -13,7 +14,7 @@ public partial class BaseCompose
     {
         var contentBorder =
             new LinearGradientBrush("#14FFFFFF".AsColor(), "#000000".AsColor(), (0.5f, 0.95f), (0.5f, 1));
-        var buttonState = Remember.Get(new ButtonState());
+        var buttonState = Remember.Get(() => new ButtonState().AsMutableState());
         var alpha = buttonState.Value switch
         {
             {IsPressed: true} => 0.8f,

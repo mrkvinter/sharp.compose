@@ -132,7 +132,7 @@ public static class HtmlCompose
         Action? child = default) => TagElement(TagElementBuilder.Strong, attributes, child);
 
     public static void TextInput(
-        ValueRemembered<string> value,
+        MutableState<string> value,
         Action<CommonTagAttributesBuilder>? attributes = default) => TagElement<CommonTagAttributesBuilder>(
         TagElementBuilder.Input, atr =>
         {
