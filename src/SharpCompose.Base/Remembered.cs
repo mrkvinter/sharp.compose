@@ -27,14 +27,6 @@ public class Remembered
     public void RemoveRemembered(string key) =>
         remembered.Remove(key);
 
-    public MutableState<T> SetRemembered<T>(string key, T value, Action? onRemember = null, Action? onForgotten = null)
-    {
-        var v = new MutableState<T>(value, onForgotten);
-        remembered[key] = v;
-
-        return v;
-    }
-
     public void Clear()
     {
         remembered.Clear();

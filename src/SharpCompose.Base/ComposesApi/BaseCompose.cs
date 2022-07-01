@@ -18,7 +18,7 @@ public partial class BaseCompose
 
     public static void For<T>(IEnumerable<T> enumerable, Action<T> itemContent) where T : notnull
     {
-        using var indexController = Remember.StartLoopIndex();
+        using var indexController = ComposeKey.StartLoopIndex();
         foreach (var item in enumerable)
         {
             indexController.Next(item.GetHashCode());

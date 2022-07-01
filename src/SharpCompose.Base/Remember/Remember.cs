@@ -1,39 +1,11 @@
-using System.Diagnostics;
-using System.Reflection;
-using System.Text;
-
 namespace SharpCompose.Base;
 
 public static class Remember
 {
-    private static readonly Stack<LoopIndexController> LoopIndexControllers = new();
-    private static string LoopIndex => string.Join('-', LoopIndexControllers);
-
-    public sealed class LoopIndexController : IDisposable
-    {
-        private int index;
-
-        internal LoopIndexController()
-        {
-            LoopIndexControllers.Push(this);
-        }
-
-        public void Next(int newIndex) => index = newIndex;
-
-        public void Dispose()
-        {
-            LoopIndexControllers.Pop();
-        }
-
-        public override string ToString() => index.ToString();
-    }
-
-    public static LoopIndexController StartLoopIndex() => new();
-
     [ComposableApi]
     private static void ForgetInternal<T>(string postfixKey)
     {
-        var key = GetKey(postfixKey);
+        var key = ComposeKey.GetKey(postfixKey);
         var current = Composer.Instance.Current!;
         if (!current.Remembered.TryGetNextRemembered<T>(key, out var result)) return;
         if (result is IRememberObserver rememberObserver) rememberObserver.OnForgotten();
@@ -43,7 +15,7 @@ public static class Remember
     [ComposableApi]
     private static T GetInternal<T>(string postfixKey, Func<T> creator)
     {
-        var key = GetKey(postfixKey);
+        var key = ComposeKey.GetKey(postfixKey);
         var current = Composer.Instance.Current!;
         if (current.Remembered.TryGetNextRemembered<T>(key, out var result))
         {
@@ -61,7 +33,7 @@ public static class Remember
     [ComposableApi]
     public static T Get<T>(Func<T> creator)
     {
-        var key = GetKey();
+        var key = ComposeKey.GetKey();
         var current = Composer.Instance.Current!;
         if (current.Remembered.TryGetNextRemembered<T>(key, out var result))
         {
@@ -121,30 +93,6 @@ public static class Remember
         return GetInternal(valuePostfix, creator);
     }
 
-
-    [ComposableApi]
-    private static string GetKey(string postfix = "")
-    {
-        var st = new StackTrace();
-        var key = new StringBuilder();
-        foreach (var stackFrame in st.GetFrames())
-        {
-            if (stackFrame.GetMethod()?.GetCustomAttribute<ComposableApiAttribute>() is { } apiAttribute)
-            {
-                if (apiAttribute is RootComposableApiAttribute)
-                    break;
-
-                continue;
-            }
-
-            key.Append($"{stackFrame.GetNativeOffset()}-");
-        }
-
-        key.Append(LoopIndex);
-        key.Append(postfix);
-
-        return key.ToString();
-    }
 
     [ComposableApi]
     public static ILaunchedEffect LaunchedEffect<T>(T key, Func<CancellationToken, Task> action)
