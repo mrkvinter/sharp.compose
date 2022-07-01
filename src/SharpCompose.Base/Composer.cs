@@ -219,15 +219,6 @@ public class Composer
         {
             children.ForEach(c => c.Clear());
             children.Clear();
-
-            foreach (var value in Remembered.RememberedValues)
-            {
-                if (value is Remember.DisposableEffect disposableEffect)
-                {
-                    disposableEffect.Dispose();
-                }
-            }
-
             Remembered.Clear();
         }
 

@@ -29,6 +29,10 @@ public class Remembered
 
     public void Clear()
     {
+        foreach (var (_, value) in remembered)
+            if (value is IRememberObserver rememberObserver)
+                rememberObserver.OnForgotten();
+
         remembered.Clear();
     }
 }
@@ -42,7 +46,6 @@ public class MutableState<TValue> : IState
 {
     private readonly IState thisRemembered;
     private readonly HashSet<Composer.Scope> scopeToChange = new();
-    private readonly Action? onForget;
 
     public TValue Value
     {
@@ -75,17 +78,13 @@ public class MutableState<TValue> : IState
         }
     }
 
-    public MutableState(TValue value, Action? onForget = null)
+    public MutableState(TValue value)
     {
-        this.onForget = onForget;
         thisRemembered = this;
         thisRemembered.InternalValue = value!;
     }
 
-    public void Forget()
-    {
-        onForget?.Invoke();
-    }
-
     object IState.InternalValue { get; set; } = null!;
+
+    public override string ToString() => $"MutableState<{typeof(TValue)}>({thisRemembered.InternalValue})";
 }

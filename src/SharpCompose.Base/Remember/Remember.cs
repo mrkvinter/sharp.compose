@@ -105,19 +105,4 @@ public static class Remember
             action();
             return Task.CompletedTask;
         }));
-
-    internal sealed class DisposableEffect : IDisposable
-    {
-        private readonly Action disposable;
-
-        public DisposableEffect(Action disposable)
-        {
-            this.disposable = disposable;
-        }
-
-        public void Dispose()
-        {
-            disposable.Invoke();
-        }
-    }
 }
