@@ -1,21 +1,42 @@
-﻿using System.Drawing;
+﻿namespace SharpCompose.Base.ComposesApi.Providers;
 
-namespace SharpCompose.Base.ComposesApi.Providers;
+public record Provider(Action StartProvide);
 
-public record struct Provider(Action StartProvide, Action EndProvide);
-
-public class LocalProvider<T>
+public abstract class LocalProvider
 {
-    public T Value { get; protected set; }
+    protected static int CountProviders { get; set; }
+}
+public class LocalProvider<T> : LocalProvider
+{
+    private readonly T defaultValue;
+
+    public T Value
+    {
+        get
+        {
+            var node = Composer.Instance.Current!;
+            while (node != null)
+            {
+                if (node.Locals.TryGetValue(id, out var result))
+                    return (T) result;
+
+                node = node.Parent;
+            }
+            
+            return defaultValue;
+        }
+    }
+
+    private readonly int id;
 
     public LocalProvider(T defaultValue)
     {
-        Value = defaultValue;
+        this.defaultValue = defaultValue;
+        id = CountProviders++;
     }
 
     public Provider Provide(T newValue)
     {
-        var oldValue = Value;
-        return new Provider(() => Value = newValue, () => Value = oldValue);
+        return new Provider(() => Composer.Instance.Current!.Locals[id] = newValue!);
     }
 }

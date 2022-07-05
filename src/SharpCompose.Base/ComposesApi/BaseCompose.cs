@@ -28,15 +28,13 @@ public partial class BaseCompose
 
     public static void CompositionLocalProvider(Provider[] providers, Action content)
     {
+        Composer.Instance.StartGroup();
         foreach (var provider in providers)
         {
             provider.StartProvide();
         }
 
         content();
-        foreach (var provider in providers)
-        {
-            provider.EndProvide();
-        }
+        Composer.Instance.EndGroup();
     }
 }
