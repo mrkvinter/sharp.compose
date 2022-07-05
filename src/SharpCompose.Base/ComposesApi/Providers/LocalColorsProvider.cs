@@ -2,11 +2,12 @@
 
 namespace SharpCompose.Base.ComposesApi.Providers;
 
-public class Colors
+public record Colors(
+    Color Accent,
+    Color OnAccent,
+    Color Standard,
+    Color OnStandard,
+    Color Background)
 {
-    public Color Accent { get; init; }
-    public Color OnAccent { get; init; }
-    public Color Standard { get; init; }
-    public Color OnStandard { get; init; }
-    public Color Background { get; init; }
+    public Colors Copy() => new(Accent, OnAccent, Standard, OnStandard, Background);
 }

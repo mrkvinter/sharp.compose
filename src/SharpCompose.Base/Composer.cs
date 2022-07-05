@@ -51,7 +51,7 @@ public class Composer
         Instance.scopes.Push(Instance.Root);
         BaseCompose.CompositionLocalProvider(new[]
         {
-            LocalProviders.InputHandler.Provide(inputHandler)
+            BaseCompose.LocalInputHandler.Provide(inputHandler)
         }, content);
         Instance.StopScope();
         Instance.Composing = false;

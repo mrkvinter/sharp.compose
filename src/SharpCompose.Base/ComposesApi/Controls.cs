@@ -1,5 +1,4 @@
-﻿using SharpCompose.Base.ComposesApi.Providers;
-using SharpCompose.Base.Extensions;
+﻿using SharpCompose.Base.Extensions;
 using SharpCompose.Base.Modifiers;
 using SharpCompose.Base.Modifiers.Extensions;
 using SharpCompose.Drawer.Core.Brushes;
@@ -21,7 +20,7 @@ public partial class BaseCompose
             {IsHovered: true} => 0.9f,
             {IsHovered: false, IsPressed: false} => 1
         };
-        var buttonColor = LocalProviders.Colors.Value.Accent.WithAlpha(alpha);
+        var buttonColor = LocalColors.Value.Accent.WithAlpha(alpha);
 
         Box(Modifier
                 .Clip(Shapes.RoundCorner(4))
@@ -40,11 +39,11 @@ public partial class BaseCompose
 
                     buttonState.Value = buttonState.Value with {IsPressed = false};
                 })
-                .Padding(24, 12)
+                .Padding(24, 5, 24, 7)
                 .Then(modifier ?? Modifier),
             content: () =>
             {
-                var textColor = LocalProviders.Colors.Value.OnAccent;
+                var textColor = LocalColors.Value.OnAccent;
                 textColor = buttonState.Value.IsPressed ? textColor.WithAlpha(0.7f) : textColor;
                 Text(text: label, color: textColor);
             });

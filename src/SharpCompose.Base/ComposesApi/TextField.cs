@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using SharpCompose.Base.ComposesApi.Providers;
 using SharpCompose.Base.Extensions;
 using SharpCompose.Base.Input;
 using SharpCompose.Base.Modifiers.DrawableModifiers;
@@ -22,7 +21,7 @@ public partial class BaseCompose
         var borderBrush = new LinearGradientBrush(Color.Black.WithAlpha(0.06f), Color.Black.WithAlpha(0.44f),
             (0.5f, 0.99f), (0.5f, 1f));
 
-        var inputHandler = LocalProviders.InputHandler.Value!;
+        var inputHandler = LocalInputHandler.Value;
         Box(Modifier
                 .Clip(Shapes.RoundCorner(4))
                 .BackgroundColor(Color.White.WithAlpha(0.7f))

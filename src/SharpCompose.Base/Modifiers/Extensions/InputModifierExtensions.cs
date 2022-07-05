@@ -1,5 +1,4 @@
 ﻿using SharpCompose.Base.ComposesApi;
-using SharpCompose.Base.ComposesApi.Providers;
 using SharpCompose.Base.Extensions;
 using SharpCompose.Base.Input;
 
@@ -77,7 +76,7 @@ public static class InputModifierExtensions
         OnMouseInputModifier mouseInputModifier,
         MutableState<BoundState> boundMutableState) where T : IScopeModifier<T>
     {
-        var inputHandler = LocalProviders.InputHandler.Value!;
+        var inputHandler = BaseCompose.LocalInputHandler.Value;
         var mouseState = Remember.Get(
             () => new MouseState(IsMouseOver(inputHandler.MousePosition.x,
                 inputHandler.MousePosition.y, boundMutableState.Value)).AsMutableState());
@@ -123,7 +122,7 @@ public static class InputModifierExtensions
         this T modifier,
         Action<KeyCode> onInputKeyDown) where T : IScopeModifier<T>
     {
-        var inputHandler = LocalProviders.InputHandler.Value!;
+        var inputHandler = BaseCompose.LocalInputHandler.Value;
 
         Remember
             .LaunchedEffect(true, () => inputHandler.KeyDown += onInputKeyDown)
@@ -136,7 +135,7 @@ public static class InputModifierExtensions
         this T modifier,
         Action<string> onInputText) where T : IScopeModifier<T>
     {
-        var inputHandler = LocalProviders.InputHandler.Value!;
+        var inputHandler = BaseCompose.LocalInputHandler.Value;
 
         Remember.LaunchedEffect(true, () => inputHandler.OnTextInput += onInputText)
             .OnDispose(() => inputHandler.OnTextInput -= onInputText);
