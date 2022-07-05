@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Brushes;
+using SharpCompose.Drawer.Core.Utilities;
 using VectSharp;
 using VectSharp.Canvas;
 using Brush = SharpCompose.Drawer.Core.Brushes.Brush;
@@ -19,7 +20,7 @@ public sealed class CanvasDrawer : ICanvas
         this.callback = callback;
     }
 
-    public (int w, int h) Size { get; set; }
+    public IntSize Size { get; set; }
 
     public void Draw() => callback.Invoke(page.PaintToCanvas());
 
@@ -32,7 +33,7 @@ public sealed class CanvasDrawer : ICanvas
 
     public void Clear()
     {
-        page = new Page(Size.w, Size.h)
+        page = new Page(Size.Width, Size.Height)
         {
             Background = Colours.White
         };

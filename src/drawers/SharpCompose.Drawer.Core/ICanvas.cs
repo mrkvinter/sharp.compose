@@ -1,8 +1,10 @@
-﻿namespace SharpCompose.Drawer.Core;
+﻿using SharpCompose.Drawer.Core.Utilities;
+
+namespace SharpCompose.Drawer.Core;
 
 public interface ICanvas
 {
-    (int w, int h) Size { get; set; }
+    IntSize Size { get; set; }
 
     void Draw();
 

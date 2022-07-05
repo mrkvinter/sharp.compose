@@ -2,7 +2,7 @@
 using SharpCompose.Drawer.Core;
 using System.Collections.Generic;
 using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Text;
+using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.WinUI
 {
@@ -10,7 +10,7 @@ namespace SharpCompose.WinUI
     {
         private readonly CanvasControl canvasControl;
 
-        public (int w, int h) Size { get; set; }
+        public IntSize Size { get; set; }
 
         private readonly List<WinUIGraphics> graphics = new();
         private CanvasDrawingSession canvasDrawingSession;
@@ -37,18 +37,6 @@ namespace SharpCompose.WinUI
             ((WinUIGraphics)graphics).Draw(canvas);
             ((WinUIGraphics)graphics).Pop();
             canvasDrawingSession.DrawImage(canvasCommandList);
-        }
-
-        public (int w, int h) MeasureText(string text, double emSize, Font font)
-        {
-            var format = new CanvasTextFormat
-            {
-                FontSize = (float)emSize,
-                FontFamily = font.FontFamily,
-            };
-            using var canvasTextLayout = new CanvasTextLayout(canvasControl, text, format, float.MaxValue, float.MaxValue);
-
-            return ((int)canvasTextLayout.LayoutBounds.Width, (int)canvasTextLayout.LayoutBounds.Height);
         }
 
         public IGraphics StartGraphics()

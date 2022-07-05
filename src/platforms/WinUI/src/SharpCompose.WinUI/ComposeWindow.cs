@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml;
 using SharpCompose.Base;
 using SharpCompose.Base.Input;
 using SharpCompose.Drawer.Core.Images;
+using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.WinUI
 {
@@ -58,7 +59,7 @@ namespace SharpCompose.WinUI
         {
             if (Composer.Instance.RecomposingAsk && Bounds.Width > 0 && Bounds.Height > 0)
             {
-                composeCanvas.Size = ((int) Bounds.Width, (int) Bounds.Height);
+                composeCanvas.Size = new IntSize((int) Bounds.Width, (int) Bounds.Height);
                 Composer.Compose(this, SetContent);
                 Composer.Layout();
                 canvas.Invalidate();
