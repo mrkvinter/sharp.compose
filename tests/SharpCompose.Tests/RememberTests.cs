@@ -94,6 +94,126 @@ public class RememberTests
         Assert.That(page1, Is.Not.Null);
     }
 
+    private class Value
+    {
+        public int Val;
+
+        public Value(int v)
+        {
+            Val = v;
+        }
+    }
+
+
+    [Test]
+    public async Task RememberGetOneKey_ChangeKey_ValueShouldRecalculateOnceTime()
+    {
+        var vVal = new Value(0);
+        var composeTester = new ComposeTester.ComposeTester(() =>
+        {
+            var key = Remember.Get(() => 0.AsMutableState());
+            Remember.Get(key.Value, () =>
+            {
+                vVal.Val += 1;
+                return vVal;
+            });
+            Button(() => key.Value += 1, "Click", Modifier.Id("Button"));
+        });
+
+        composeTester.Root.OnNodeWithId("Button")!.PerformClick();
+        await composeTester.RecomposeAsync();
+        await composeTester.RecomposeAsync(true);
+
+        Assert.That(vVal.Val, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task RememberGetTwoKey_ChangeKey_ValueShouldRecalculateOnceTime()
+    {
+        var vVal = new Value(0);
+        var composeTester = new ComposeTester.ComposeTester(() =>
+        {
+            var key1 = Remember.Get(() => 0.AsMutableState());
+            var key2 = Remember.Get(() => 0.AsMutableState());
+            Remember.Get(key1.Value, key2.Value, () =>
+            {
+                vVal.Val += 1;
+                return vVal;
+            });
+            Button(() =>
+            {
+                key1.Value += 1;
+                key2.Value += 1;
+            }, "Click", Modifier.Id("Button"));
+        });
+
+        composeTester.Root.OnNodeWithId("Button")!.PerformClick();
+        await composeTester.RecomposeAsync();
+        await composeTester.RecomposeAsync(true);
+
+        Assert.That(vVal.Val, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task RememberGetThreeKey_ChangeKey_ValueShouldRecalculateOnceTime()
+    {
+        var vVal = new Value(0);
+        var composeTester = new ComposeTester.ComposeTester(() =>
+        {
+            var key1 = Remember.Get(() => 0.AsMutableState());
+            var key2 = Remember.Get(() => 0.AsMutableState());
+            var key3 = Remember.Get(() => 0.AsMutableState());
+            Remember.Get(key1.Value, key2.Value, key3.Value, () =>
+            {
+                vVal.Val += 1;
+                return vVal;
+            });
+            Button(() =>
+            {
+                key1.Value += 1;
+                key2.Value += 1;
+                key3.Value += 1;
+            }, "Click", Modifier.Id("Button"));
+        });
+
+        composeTester.Root.OnNodeWithId("Button")!.PerformClick();
+        await composeTester.RecomposeAsync();
+        await composeTester.RecomposeAsync(true);
+
+        Assert.That(vVal.Val, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task RememberGetFourKey_ChangeKey_ValueShouldRecalculateOnceTime()
+    {
+        var vVal = new Value(0);
+        var composeTester = new ComposeTester.ComposeTester(() =>
+        {
+            var key1 = Remember.Get(() => 0.AsMutableState());
+            var key2 = Remember.Get(() => 0.AsMutableState());
+            var key3 = Remember.Get(() => 0.AsMutableState());
+            var key4 = Remember.Get(() => 0.AsMutableState());
+            Remember.Get(key1.Value, key2.Value, key3.Value, key4.Value, () =>
+            {
+                vVal.Val += 1;
+                return vVal;
+            });
+            Button(() =>
+            {
+                key1.Value += 1;
+                key2.Value += 1;
+                key3.Value += 1;
+                key4.Value += 1;
+            }, "Click", Modifier.Id("Button"));
+        });
+
+        composeTester.Root.OnNodeWithId("Button")!.PerformClick();
+        await composeTester.RecomposeAsync();
+        await composeTester.RecomposeAsync(true);
+
+        Assert.That(vVal.Val, Is.EqualTo(2));
+    }
+
     [Composable]
     private static void RememberContent()
     {

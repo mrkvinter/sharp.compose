@@ -9,6 +9,7 @@ namespace SharpCompose.Base.Modifiers;
 public sealed class TextDrawModifier : IDrawableLayerModifier
 {
     public string Text { get; }
+    public Brush Brush => brush;
 
     private readonly double fontSize;
     private readonly Font font;

@@ -56,7 +56,12 @@ public static class Remember
         var rememberedKey = GetInternal(keyPostfix, () => key);
 
         if (!rememberedKey!.Equals(key))
+        {
+            ForgetInternal<TKey>(keyPostfix);
+            GetInternal(keyPostfix, () => key);
+
             ForgetInternal<T>(valuePostfix);
+        }
 
         return GetInternal(valuePostfix, creator);
     }
@@ -71,7 +76,15 @@ public static class Remember
         var rememberedKey2 = GetInternal(key2Postfix, () => key2);
 
         if (!rememberedKey1!.Equals(key1) || !rememberedKey2!.Equals(key2))
+        {
+            ForgetInternal<TKey1>(key1Postfix);
+            GetInternal(key1Postfix, () => key1);
+
+            ForgetInternal<TKey2>(key2Postfix);
+            GetInternal(key2Postfix, () => key2);
+
             ForgetInternal<T>(valuePostfix);
+        }
 
         return GetInternal(valuePostfix, creator);
     }
@@ -88,11 +101,55 @@ public static class Remember
         var rememberedKey3 = GetInternal(key3Postfix, () => key3);
 
         if (!rememberedKey1!.Equals(key1) || !rememberedKey2!.Equals(key2) || !rememberedKey3!.Equals(key3))
+        {
+            ForgetInternal<TKey1>(key1Postfix);
+            GetInternal(key1Postfix, () => key1);
+
+            ForgetInternal<TKey2>(key2Postfix);
+            GetInternal(key2Postfix, () => key2);
+
+            ForgetInternal<TKey3>(key3Postfix);
+            GetInternal(key3Postfix, () => key3);
+
             ForgetInternal<T>(valuePostfix);
+        }
 
         return GetInternal(valuePostfix, creator);
     }
 
+    [ComposableApi]
+    public static T Get<TKey1, TKey2, TKey3, TKey4, T>(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, Func<T> creator)
+    {
+        const string key1Postfix = "_key1";
+        const string key2Postfix = "_key2";
+        const string key3Postfix = "_key3";
+        const string key4Postfix = "_key4";
+        const string valuePostfix = "_val";
+        var rememberedKey1 = GetInternal(key1Postfix, () => key1);
+        var rememberedKey2 = GetInternal(key2Postfix, () => key2);
+        var rememberedKey3 = GetInternal(key3Postfix, () => key3);
+        var rememberedKey4 = GetInternal(key4Postfix, () => key4);
+
+        if (!rememberedKey1!.Equals(key1) || !rememberedKey2!.Equals(key2) || !rememberedKey3!.Equals(key3) ||
+            !rememberedKey4!.Equals(key4))
+        {
+            ForgetInternal<TKey1>(key1Postfix);
+            GetInternal(key1Postfix, () => key1);
+
+            ForgetInternal<TKey2>(key2Postfix);
+            GetInternal(key2Postfix, () => key2);
+
+            ForgetInternal<TKey3>(key3Postfix);
+            GetInternal(key3Postfix, () => key3);
+
+            ForgetInternal<TKey4>(key4Postfix);
+            GetInternal(key4Postfix, () => key4);
+
+            ForgetInternal<T>(valuePostfix);
+        }
+
+        return GetInternal(valuePostfix, creator);
+    }
 
     [ComposableApi]
     public static ILaunchedEffect LaunchedEffect<T>(T key, Func<CancellationToken, Task> action)

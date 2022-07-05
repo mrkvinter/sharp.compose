@@ -8,6 +8,10 @@ public interface IModifier
 
     IModifier[] SqueezeModifiers();
 
+    IEnumerable<IModifier> FromOutToIn() => new[] {this};
+
+    IEnumerable<IModifier> FromInToOut() => new[] {this};
+
     public interface IElement : IModifier
     {
         IModifier[] IModifier.SqueezeModifiers() => new IModifier[] {this};
@@ -19,6 +23,10 @@ public interface IModifier
         {
             return Array.Empty<IModifier>();
         }
+
+        public IEnumerable<IModifier> FromOutToIn() => Enumerable.Empty<IModifier>();
+
+        public IEnumerable<IModifier> FromInToOut() => Enumerable.Empty<IModifier>();
     }
 }
 
@@ -35,6 +43,11 @@ public sealed class CombinedModifier : IModifier
 
     public IModifier[] SqueezeModifiers()
         => inner.SqueezeModifiers().Concat(outer.SqueezeModifiers()).ToArray();
+
+    
+    IEnumerable<IModifier> IModifier.FromOutToIn() => outer.FromOutToIn().Concat(inner.FromOutToIn());
+
+    IEnumerable<IModifier> IModifier.FromInToOut() => inner.FromInToOut().Concat(outer.FromInToOut());
 }
 
 public sealed class DebugModifier : IModifier.IElement
