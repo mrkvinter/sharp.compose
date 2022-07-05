@@ -2,19 +2,9 @@
 
 public readonly record struct Rect(int X, int Y, int Width, int Height);
 
-public class Font
+public record Font(string FontFamily, FontWeight FontWeight)
 {
-    public string FontFamily { get; }
-
-    public FontWeight FontWeight { get; }
-    
     public Stream? FontStream { get; init; }
-
-    public Font(string fontFamily, FontWeight fontWeight)
-    {
-        FontFamily = fontFamily;
-        FontWeight = fontWeight;
-    }
 }
 
 public struct FontWeight
