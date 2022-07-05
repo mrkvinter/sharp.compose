@@ -1,6 +1,3 @@
-using SharpCompose.Base;
-using SharpCompose.Drawer.Core;
-
 namespace SharpCompose.WebTags.ElementBuilder;
 
 [Obsolete("Used to for Blazor integrating")]
@@ -43,19 +40,4 @@ public class TagElementBuilder : IElementBuilder
     public static readonly IElementBuilder Main = CreateBuilder("main");
     public static readonly IElementBuilder I = CreateBuilder("i");
     public static readonly IElementBuilder Strong = CreateBuilder("strong");
-
-    public (int w, int h) CalculateVisualSize(Composer.Scope scope)
-    {
-        throw new NotImplementedException();
-    }
-
-    public (int w, int h) CalculateRealSize(Composer.Scope scope)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Draw(Composer.Scope scope, ICanvas canvas, int pointerX, int pointerY)
-    {
-        throw new NotImplementedException();
-    }
 }

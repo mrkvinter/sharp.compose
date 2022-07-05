@@ -1,12 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using SharpCompose.Drawer.Core;
 
 namespace SharpCompose.Base;
 
 public class Remembered
 {
     private readonly Dictionary<string, object> remembered = new();
-
-    public IEnumerable<object?> RememberedValues => remembered.Values.Select(e => e);
 
     public bool TryGetNextRemembered<T>(string key, [MaybeNullWhen(false)] out T result)
     {
@@ -45,13 +44,13 @@ internal interface IState
 public class MutableState<TValue> : IState
 {
     private readonly IState thisRemembered;
-    private readonly HashSet<Composer.Scope> scopeToChange = new();
+    private readonly HashSet<INode> nodesToChange = new();
 
     public TValue Value
     {
         get
         {
-            if (Composer.Instance.Current != null) scopeToChange.Add(Composer.Instance.Current);
+            if (Composer.Instance.Current != null) nodesToChange.Add(Composer.Instance.Current);
             return (TValue) thisRemembered.InternalValue;
         }
         set
@@ -60,21 +59,34 @@ public class MutableState<TValue> : IState
                 return;
 
             thisRemembered.InternalValue = value!;
-            foreach (var scope in scopeToChange)
+            foreach (var node in nodesToChange)
             {
-                SetChange(scope);
+                SetChange(node);
             }
 
             Composer.Recompose();
         }
     }
 
-    private void SetChange(Composer.Scope scope)
+    private void SetChange(INode node)
     {
-        scope.Changed = true;
-        foreach (var scopeChild in scope.Children)
+        switch (node)
         {
-            SetChange(scopeChild);
+            case GroupNode groupNode:
+            {
+                foreach (var childGroupNode in groupNode.Nodes)
+                {
+                    childGroupNode.Changed = true;
+                    childGroupNode.Children.ForEach(SetChange);
+                }
+                break;
+            }
+            case LayoutNode scope:
+            {
+                scope.Changed = true;
+                scope.Children.ForEach(SetChange);
+                break;
+            }
         }
     }
 

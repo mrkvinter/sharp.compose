@@ -12,9 +12,9 @@ public class IdNodeMatcher : INodeMatcher
         this.id = id;
     }
 
-    public bool Match(Composer.Scope scope)
+    public bool Match(LayoutNode layoutNode)
     {
-        return scope.Modifier
+        return layoutNode.Modifier
             .SqueezeModifiers()
             .Any(m => m is TestIdModifier idModifier && idModifier.Id == id);
     }

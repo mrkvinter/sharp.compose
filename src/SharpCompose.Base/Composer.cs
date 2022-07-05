@@ -1,8 +1,5 @@
-using SharpCompose.Base.ComposesApi.Providers;
 using SharpCompose.Base.Layouting;
 using SharpCompose.Base.Modifiers;
-using SharpCompose.Base.Modifiers.DrawableModifiers;
-using SharpCompose.Base.Modifiers.LayoutModifiers;
 using SharpCompose.Drawer.Core;
 using BaseCompose = SharpCompose.Base.ComposesApi.BaseCompose;
 
@@ -12,16 +9,16 @@ public delegate MeasureResult Measure(Measurable[] measures, Constraints constra
 
 public class Composer
 {
-    public static Composer Instance { get; internal set; } = new();
+    public static Composer Instance { get; } = new();
 
-    private Scope? root;
+    private LayoutNode? root;
     public ICanvas Canvas { get; protected set; } = null!;
 
-    private readonly Stack<Scope> scopes = new(Array.Empty<Scope>());
+    internal readonly Stack<INode> Scopes = new(Array.Empty<INode>());
 
-    protected internal Scope Root => root ??= Instance.CreateRoot();
+    protected internal LayoutNode Root => root ??= Instance.CreateRoot();
 
-    internal Scope? Current => scopes.TryPeek(out var parent) ? parent : null;
+    internal INode? Current => Scopes.TryPeek(out var parent) ? parent : null;
 
     public bool RecomposingAsk { get; private set; }
     public bool Composing { get; private set; }
@@ -37,6 +34,11 @@ public class Composer
         Canvas = canvas;
     }
 
+    internal void ForceClear()
+    {
+        root = null;
+    }
+
     [RootComposableApi]
     public static void Compose(IInputHandler inputHandler, Action content)
     {
@@ -48,7 +50,7 @@ public class Composer
         }
 
         // We already have root scope, so we shouldn't run StartScope, because we will not have access to remember table
-        Instance.scopes.Push(Instance.Root);
+        Instance.Scopes.Push(Instance.Root);
         BaseCompose.CompositionLocalProvider(new[]
         {
             BaseCompose.LocalInputHandler.Provide(inputHandler)
@@ -80,35 +82,65 @@ public class Composer
         Instance.Canvas.Draw();
     }
 
-    private Scope CreateRoot()
+    private LayoutNode CreateRoot()
     {
-        var createdRoot = new Scope(IModifier.Empty, BoxLayout.Measure(new BiasAlignment(-1, -1)),
+        var createdRoot = new LayoutNode(IModifier.Empty,
             Canvas.StartGraphics())
         {
-            Name = "0"
+            Name = "0",
+            Measure = BoxLayout.Measure(new BiasAlignment(-1, -1)),
         };
-        scopes.Clear();
+
+        Scopes.Clear();
 
         return createdRoot;
     }
 
-    public void StartScope(IModifier modifier, Measure measure)
+    public void StartGroup()
     {
-        Scope Creator()
+        INode Creator()
         {
-            var createdScope = new Scope(modifier, measure, Canvas.StartGraphics());
-
-            if (scopes.TryPeek(out var parent))
+            var createdScope = new GroupNode
             {
-                parent.AddChild(createdScope);
-                createdScope.Name = parent.Name + $"-{parent.Children.Count - 1}";
-            }
+                Parent = Current!
+            };
+            Current!.AddChild(createdScope);
 
             return createdScope;
         }
 
-        var scope = Remember.Get(() => new MutableState<Scope>(Creator())).Value;
-        scopes.Peek().UnusedChildren.Remove(scope);
+        var scope = Remember.Get(Creator);
+        Scopes.Peek().UnusedChildren.Remove(scope);
+
+        scope.SaveUnused();
+
+        Scopes.Push(scope);
+    }
+
+    public void EndGroup()
+    {
+        var scope = Scopes.Pop();
+        foreach (var unusedChild in scope.UnusedChildren)
+            unusedChild.Nodes.ForEach(e => e.Clear());
+    }
+
+    public void StartScope(IModifier modifier, Measure measure)
+    {
+        LayoutNode Creator()
+        {
+            var createdScope = new LayoutNode(modifier, Canvas.StartGraphics())
+            {
+                Name = string.Join(".", modifier.FromInToOut().OfType<DebugModifier>().Select(e => e.ScopeName)),
+                Parent = Current!
+            };
+            Current!.AddChild(createdScope);
+
+            return createdScope;
+        }
+
+        var scope = Remember.Get(Creator);
+        scope.Measure = measure;
+        Scopes.Peek().UnusedChildren.Remove(scope);
 
         scope.SaveUnused();
 
@@ -118,121 +150,13 @@ public class Composer
             scope.Changed = false;
         }
 
-        scopes.Push(scope);
+        Scopes.Push(scope);
     }
 
     public void StopScope()
     {
-        var scope = scopes.Pop();
+        var scope = Scopes.Pop();
         foreach (var unusedChild in scope.UnusedChildren)
             unusedChild.Clear();
-    }
-
-    public class Scope
-        // protected internal class Scope
-    {
-        internal IModifier Modifier => modifier;
-
-        internal readonly List<Scope> UnusedChildren = new();
-
-        private readonly List<Scope> children = new();
-        private readonly Measure measure;
-        private readonly IGraphics graphics;
-        private IModifier modifier;
-
-        public Scope(IModifier modifier, Measure measure, IGraphics graphics)
-        {
-            this.modifier = modifier;
-            this.measure = measure;
-            this.graphics = graphics;
-            Measurable = GetMeasure();
-        }
-
-        public IReadOnlyCollection<Scope> Children => children;
-
-        public void Update(IModifier modifier)
-        {
-            this.modifier = modifier;
-            Measurable = GetMeasure();
-        }
-
-        public readonly Remembered Remembered = new();
-
-        public string Name { get; internal set; } = "";
-
-        public bool Changed { get; set; }
-
-        public Measurable Measurable { get; private set; }
-
-        public void ClearGraphics()
-        {
-            graphics.Clear();
-            children.ForEach(e => e.ClearGraphics());
-        }
-
-        private Measurable GetMeasure()
-        {
-            var measurable = new Measurable
-            {
-                Measure = constraints =>
-                {
-                    return measure(children
-                        .Select(e => e.Measurable).ToArray(), constraints);
-                }
-            };
-
-            var modifiers = modifier.SqueezeModifiers();
-
-            foreach (var m in modifiers)
-            {
-                if (m is DebugModifier debugModifier)
-                {
-                    if (debugModifier.ScopeName != null) this.Name = debugModifier.ScopeName;
-                    continue;
-                }
-
-                measurable = m switch
-                {
-                    ILayoutModifier layoutModifier => layoutModifier.Introduce(measurable),
-                    IDrawableLayerModifier drawableModifier => drawableModifier.Introduce(measurable, graphics),
-                    IParentDataModifier parentDataModifier => parentDataModifier.Introduce(measurable),
-                    _ => measurable
-                };
-            }
-
-            return measurable;
-        }
-
-        public void DrawNode(ICanvas canvas)
-        {
-            canvas.DrawGraphics(0, 0, graphics);
-            children.ForEach(c => c.DrawNode(canvas));
-        }
-
-        public void SaveUnused()
-        {
-            UnusedChildren.Clear();
-            UnusedChildren.AddRange(children);
-        }
-
-        public void Clear()
-        {
-            children.ForEach(c => c.Clear());
-            children.Clear();
-            Remembered.Clear();
-        }
-
-        public void AddChild(Scope scope)
-        {
-            children.Add(scope);
-        }
-
-        public void RemoveChild(Scope scope)
-        {
-            children.Remove(scope);
-        }
-
-        public override string ToString() =>
-            $"{nameof(Scope)} ({Name}) [{Remembered.RememberedValues.FirstOrDefault()}]";
     }
 }

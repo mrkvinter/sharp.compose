@@ -13,9 +13,9 @@ public class HasTextNodeMatcher : INodeMatcher
         this.textToMatch = textToMatch;
     }
 
-    public bool Match(Composer.Scope scope)
+    public bool Match(LayoutNode layoutNode)
     {
-        return scope.Modifier
+        return layoutNode.Modifier
             .SqueezeModifiers()
             .Any(m => m is TextDrawModifier textDrawModifier &&
                       (textToMatch == null || textToMatch == textDrawModifier.Text));

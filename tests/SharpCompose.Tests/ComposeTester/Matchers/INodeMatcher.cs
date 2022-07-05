@@ -4,5 +4,5 @@ namespace TestSharpCompose.ComposeTester.Matchers;
 
 public interface INodeMatcher
 {
-    bool Match(Composer.Scope scope);
+    bool Match(LayoutNode layoutNode);
 }

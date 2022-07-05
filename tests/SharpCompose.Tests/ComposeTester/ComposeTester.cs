@@ -52,4 +52,4 @@ public class ComposeTester
     public Node Root => new(Composer.Instance.Root);
 }
 
-public record Node(Composer.Scope Scope);
+public record Node(LayoutNode LayoutNode);

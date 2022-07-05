@@ -11,15 +11,15 @@ public static class NodeExtensions
 {
     public static Node? OnNode(this Node node, INodeMatcher nodeMatcher)
     {
-        var scopes = new Queue<Composer.Scope>();
-        scopes.Enqueue(node.Scope);
+        var scopes = new Queue<LayoutNode>();
+        scopes.Enqueue(node.LayoutNode);
         while (scopes.TryDequeue(out var scope))
         {
             if (nodeMatcher.Match(scope))
                 return new Node(scope);
 
             foreach (var child in scope.Children)
-                scopes.Enqueue(child);
+                child.Nodes.ForEach(e => scopes.Enqueue(e));
         }
 
         return default;
@@ -37,7 +37,7 @@ public static class NodeExtensions
     public static Node PerformClick(this Node node)
     {
         var inputModifier =
-            node.Scope.Modifier.SqueezeModifiers()
+            node.LayoutNode.Modifier.SqueezeModifiers()
                 .Select(e => e as OnMouseInputModifier)
                 .Where(e => e != null)
                 .Cast<OnMouseInputModifier>()
