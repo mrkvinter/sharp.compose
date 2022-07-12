@@ -124,7 +124,8 @@ public class Composer
             unusedChild.Nodes.ForEach(e => e.Clear());
     }
 
-    public void StartScope(IModifier modifier, Measure measure)
+    [ComposableApi]
+    public void StartNode(IModifier modifier, Measure measure)
     {
         LayoutNode Creator()
         {
@@ -153,7 +154,7 @@ public class Composer
         Scopes.Push(scope);
     }
 
-    public void StopScope()
+    public void EndNode()
     {
         var scope = Scopes.Pop();
         foreach (var unusedChild in scope.UnusedChildren)

@@ -4,42 +4,33 @@ using SharpCompose.Base.Modifiers.DrawableModifiers;
 using SharpCompose.Base.Modifiers.LayoutModifiers;
 using SharpCompose.Drawer.Core;
 
-namespace SharpCompose.Base;
+namespace SharpCompose.Base.Nodes;
 
-public class LayoutNode : INode
+public class LayoutNode : IUINode
 {
     internal IModifier Modifier { get; private set; }
 
-    public List<INode> UnusedChildren { get; } = new();
-
-    public Dictionary<int, object> Locals { get; } = new();
+    public IGroupNode GroupNode { get; set; } = default!;
 
     public INode? Parent { get; init; }
 
+    public Remembered Remembered { get; } = new();
+
     internal Measure Measure { get; set; }
 
-    public IEnumerable<LayoutNode> Nodes
-    {
-        get { yield return this; }
-    }
 
-    private readonly List<INode> children = new();
     private readonly IGraphics graphics;
 
     public LayoutNode(IModifier modifier, IGraphics graphics)
     {
-        this.Modifier = modifier;
+        Modifier = modifier;
         this.graphics = graphics;
     }
 
-    public IReadOnlyCollection<INode> Children => children;
-
     public void Update(IModifier modifier)
     {
-        this.Modifier = modifier;
+        Modifier = modifier;
     }
-
-    public Remembered Remembered { get; } = new();
 
     public string Name { get; internal set; } = "";
 
@@ -50,7 +41,7 @@ public class LayoutNode : INode
     public void ClearGraphics()
     {
         graphics.Clear();
-        children.SelectMany(e => e.Nodes).ForEach(e => e.ClearGraphics());
+        GroupNode.Nodes.ForEach(e => e.ClearGraphics());
     }
 
     private Measurable GetMeasure()
@@ -58,10 +49,7 @@ public class LayoutNode : INode
         var measurable = new Measurable
         {
             Measure = constraints =>
-            {
-                return Measure(children
-                    .SelectMany(e => e.Nodes.Select(x => x.Measurable)).ToArray(), constraints);
-            }
+                Measure(GroupNode.Nodes.Select(x => x.Measurable).ToArray(), constraints)
         };
 
         var modifiers = Modifier.SqueezeModifiers();
@@ -78,32 +66,16 @@ public class LayoutNode : INode
     public void DrawNode(ICanvas canvas)
     {
         canvas.DrawGraphics(0, 0, graphics);
-        children.SelectMany(e => e.Nodes).ForEach(c => c.DrawNode(canvas));
-    }
-
-    public void SaveUnused()
-    {
-        UnusedChildren.Clear();
-        UnusedChildren.AddRange(children);
+        GroupNode.Nodes.ForEach(c => c.DrawNode(canvas));
     }
 
     public void Clear()
     {
-        children.ForEach(c => c.Clear());
-        children.Clear();
+        GroupNode.Clear();
+        GroupNode.Nodes.ForEach(e => e.Clear());
         Remembered.Clear();
     }
 
-    public void AddChild(INode scope)
-    {
-        children.Add(scope);
-    }
-
-    public void RemoveChild(LayoutNode layoutNode)
-    {
-        children.Remove(layoutNode);
-    }
-
     public override string ToString() =>
-        $"{nameof(LayoutNode)} ({Name}) [{string.Join("->", Children.SelectMany(e => e.Nodes.Select(e => e.Name)))}]";
+        $"{nameof(LayoutNode)} ({Name}) [{string.Join("->", GroupNode.Nodes.Select(e => e.Name))}]";
 }

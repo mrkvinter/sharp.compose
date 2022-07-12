@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SharpCompose.Base;
 using SharpCompose.Base.Modifiers;
+using SharpCompose.Base.Nodes;
 using SharpCompose.Drawer.Core;
 using TestSharpCompose.ComposeTester.Matchers;
 
@@ -13,13 +13,12 @@ public static class NodeExtensions
     {
         var scopes = new Queue<LayoutNode>();
         scopes.Enqueue(node.LayoutNode);
-        while (scopes.TryDequeue(out var scope))
+        while (scopes.TryDequeue(out var layoutNode))
         {
-            if (nodeMatcher.Match(scope))
-                return new Node(scope);
+            if (nodeMatcher.Match(layoutNode))
+                return new Node(layoutNode);
 
-            foreach (var child in scope.Children)
-                child.Nodes.ForEach(e => scopes.Enqueue(e));
+            layoutNode.GroupNode.Nodes.ForEach(scopes.Enqueue);
         }
 
         return default;

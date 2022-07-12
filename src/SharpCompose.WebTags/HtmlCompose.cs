@@ -33,9 +33,9 @@ public static class HtmlCompose
                 }
             };
         };
-        Composer.Instance.StartScope(IModifier.Empty, measure);
+        Composer.Instance.StartNode(IModifier.Empty, measure);
         child?.Invoke();
-        Composer.Instance.StopScope();
+        Composer.Instance.EndNode();
     }
 
     public static void Div(

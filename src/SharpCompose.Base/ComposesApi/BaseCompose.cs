@@ -10,10 +10,10 @@ public partial class BaseCompose
 
     public static void VoidScope(Action content)
     {
-        Composer.Instance.StartScope(IModifier.Empty.Then(new DebugModifier {ScopeName = nameof(VoidScope)}),
+        Composer.Instance.StartNode(IModifier.Empty.Then(new DebugModifier {ScopeName = nameof(VoidScope)}),
             BoxLayout.Measure(new BiasAlignment(0, 0)));
         content();
-        Composer.Instance.StopScope();
+        Composer.Instance.EndNode();
     }
 
     public static void For<T>(IEnumerable<T> enumerable, Action<T> itemContent) where T : notnull
