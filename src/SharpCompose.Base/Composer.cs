@@ -1,5 +1,6 @@
 using SharpCompose.Base.Layouting;
 using SharpCompose.Base.Modifiers;
+using SharpCompose.Base.Nodes;
 using SharpCompose.Drawer.Core;
 using BaseCompose = SharpCompose.Base.ComposesApi.BaseCompose;
 
@@ -11,17 +12,23 @@ public class Composer
 {
     public static Composer Instance { get; } = new();
 
-    private LayoutNode? root;
+    private RootNode? root;
     public ICanvas Canvas { get; protected set; } = null!;
 
-    internal readonly Stack<INode> Scopes = new(Array.Empty<INode>());
+    internal readonly Stack<IUINode> UINodes = new(Array.Empty<IUINode>());
+    internal readonly Stack<IGroupNode> Groups = new(Array.Empty<IGroupNode>());
 
-    protected internal LayoutNode Root => root ??= Instance.CreateRoot();
+    protected internal RootNode Root => root ??= Instance.CreateRoot();
 
-    internal INode? Current => Scopes.TryPeek(out var parent) ? parent : null;
+    internal IUINode CurrentUINode => UINodes.Peek();
+    internal IGroupNode CurrentGroup => Groups.Peek();
+
+    internal IGroupNode? PossibleCurrentGroup => Groups.TryPeek(out var groupNode) ? groupNode : null;
 
     public bool RecomposingAsk { get; private set; }
     public bool Composing { get; private set; }
+
+    private bool waitingInsertGroup;
 
     //todo: make internal again
     public static void Recompose()
@@ -44,18 +51,20 @@ public class Composer
     {
         Instance.Composing = true;
         if (Instance.Root.Changed)
-        {
-            Instance.Root.SaveUnused();
             Instance.Root.Changed = false;
-        }
 
         // We already have root scope, so we shouldn't run StartScope, because we will not have access to remember table
-        Instance.Scopes.Push(Instance.Root);
+        Instance.Groups.Push(Instance.Root);
+        Instance.UINodes.Push(Instance.Root);
+
         BaseCompose.CompositionLocalProvider(new[]
         {
             BaseCompose.LocalInputHandler.Provide(inputHandler)
         }, content);
-        Instance.StopScope();
+
+        Instance.EndNode();
+        Instance.EndGroup();
+
         Instance.Composing = false;
     }
 
@@ -82,46 +91,69 @@ public class Composer
         Instance.Canvas.Draw();
     }
 
-    private LayoutNode CreateRoot()
+    private RootNode CreateRoot()
     {
-        var createdRoot = new LayoutNode(IModifier.Empty,
-            Canvas.StartGraphics())
+        var createdRoot = new RootNode(Canvas.StartGraphics())
         {
-            Name = "0",
+            Name = "Root",
             Measure = BoxLayout.Measure(new BiasAlignment(-1, -1)),
         };
 
-        Scopes.Clear();
+        UINodes.Clear();
 
         return createdRoot;
     }
 
+    [ComposableApi]
     public void StartGroup()
     {
-        INode Creator()
+        [ComposableApi]
+        IGroupNode Creator()
         {
             var createdScope = new GroupNode
             {
-                Parent = Current!
+                Parent = waitingInsertGroup ? CurrentUINode : CurrentGroup
             };
-            Current!.AddChild(createdScope);
+            if (waitingInsertGroup)
+                CurrentUINode.GroupNode = createdScope;
+            else
+                CurrentGroup.AddChild(createdScope);
 
             return createdScope;
         }
 
-        var scope = Remember.Get(Creator);
-        Scopes.Peek().UnusedChildren.Remove(scope);
 
-        scope.SaveUnused();
+        var key = ComposeKey.GetKey();
+        var loopPostfix = string.Empty;
+        if (CurrentGroup.CountNodes.TryGetValue(key, out var count))
+        {
+            loopPostfix += count;
+            CurrentGroup.CountNodes[key]++;
+        }
+        else
+        {
+            CurrentGroup.CountNodes.Add(key, 0);
+        }
 
-        Scopes.Push(scope);
+        var groupNode = Remember.GetInternal(loopPostfix, Creator);
+
+        waitingInsertGroup = false;
+
+        if (groupNode.Parent is IGroupNode groupNodeParent)
+            groupNodeParent.UnusedChildren.Remove(groupNode);
+
+
+        groupNode.SaveUnused();
+
+        Groups.Push(groupNode);
     }
 
     public void EndGroup()
     {
-        var scope = Scopes.Pop();
-        foreach (var unusedChild in scope.UnusedChildren)
-            unusedChild.Nodes.ForEach(e => e.Clear());
+        var groupNode = Groups.Pop();
+        groupNode.CountNodes.Clear();
+        foreach (var unusedChild in groupNode.UnusedChildren)
+            unusedChild.Clear();
     }
 
     [ComposableApi]
@@ -132,32 +164,45 @@ public class Composer
             var createdScope = new LayoutNode(modifier, Canvas.StartGraphics())
             {
                 Name = string.Join(".", modifier.FromInToOut().OfType<DebugModifier>().Select(e => e.ScopeName)),
-                Parent = Current!
+                Parent = CurrentGroup
             };
-            Current!.AddChild(createdScope);
+            CurrentGroup.AddChild(createdScope);
 
             return createdScope;
         }
 
-        var scope = Remember.Get(Creator);
-        scope.Measure = measure;
-        Scopes.Peek().UnusedChildren.Remove(scope);
+        if (waitingInsertGroup)
+            throw new InvalidOperationException(
+                $"Imposable inserting node while waiting inserting group. Please, call {nameof(StartGroup)} before.");
 
-        scope.SaveUnused();
-
-        if (scope.Changed)
+        waitingInsertGroup = true;
+        var key = ComposeKey.GetKey();
+        var loopPostfix = string.Empty;
+        if (CurrentGroup.CountNodes.TryGetValue(key, out var count))
         {
-            scope.Update(modifier);
-            scope.Changed = false;
+            loopPostfix += count;
+            CurrentGroup.CountNodes[key]++;
+        }
+        else
+        {
+            CurrentGroup.CountNodes.Add(key, 0);
         }
 
-        Scopes.Push(scope);
+        var layoutNode = Remember.GetInternal(loopPostfix, Creator);
+        layoutNode.Measure = measure;
+        CurrentGroup.UnusedChildren.Remove(layoutNode);
+
+        if (layoutNode.Changed)
+        {
+            layoutNode.Update(modifier);
+            layoutNode.Changed = false;
+        }
+
+        UINodes.Push(layoutNode);
     }
 
     public void EndNode()
     {
-        var scope = Scopes.Pop();
-        foreach (var unusedChild in scope.UnusedChildren)
-            unusedChild.Clear();
+        UINodes.Pop();
     }
 }

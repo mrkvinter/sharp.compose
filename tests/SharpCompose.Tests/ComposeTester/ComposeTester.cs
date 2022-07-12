@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FakeItEasy;
 using SharpCompose.Base;
+using SharpCompose.Base.Nodes;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Utilities;
 

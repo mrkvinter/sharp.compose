@@ -6,7 +6,7 @@ public static class Remember
     private static void ForgetInternal<T>(string postfixKey)
     {
         var key = ComposeKey.GetKey(postfixKey);
-        var current = Composer.Instance.Current!;
+        var current = Composer.Instance.CurrentGroup;
         if (!current.Remembered.TryGetNextRemembered<T>(key, out var result)) return;
         if (result is IRememberObserver rememberObserver) rememberObserver.OnForgotten();
         current.Remembered.RemoveRemembered(key);
@@ -16,7 +16,7 @@ public static class Remember
     private static T GetInternal<T>(string postfixKey, Func<T> creator)
     {
         var key = ComposeKey.GetKey(postfixKey);
-        var current = Composer.Instance.Current!;
+        var current = Composer.Instance.CurrentGroup;
         if (current.Remembered.TryGetNextRemembered<T>(key, out var result))
         {
             return result;
@@ -34,7 +34,7 @@ public static class Remember
     public static T Get<T>(Func<T> creator)
     {
         var key = ComposeKey.GetKey();
-        var current = Composer.Instance.Current!;
+        var current = Composer.Instance.CurrentGroup;
         if (current.Remembered.TryGetNextRemembered<T>(key, out var result))
         {
             return result;
@@ -75,7 +75,7 @@ public static class Remember
         var rememberedKey1 = GetInternal(key1Postfix, () => key1);
         var rememberedKey2 = GetInternal(key2Postfix, () => key2);
 
-        if (!rememberedKey1!.Equals(key1) || !rememberedKey2!.Equals(key2))
+        if (!rememberedKey1.Equals(key1) || !rememberedKey2.Equals(key2))
         {
             ForgetInternal<TKey1>(key1Postfix);
             GetInternal(key1Postfix, () => key1);
@@ -100,7 +100,7 @@ public static class Remember
         var rememberedKey2 = GetInternal(key2Postfix, () => key2);
         var rememberedKey3 = GetInternal(key3Postfix, () => key3);
 
-        if (!rememberedKey1!.Equals(key1) || !rememberedKey2!.Equals(key2) || !rememberedKey3!.Equals(key3))
+        if (!rememberedKey1.Equals(key1) || !rememberedKey2.Equals(key2) || !rememberedKey3.Equals(key3))
         {
             ForgetInternal<TKey1>(key1Postfix);
             GetInternal(key1Postfix, () => key1);
@@ -130,8 +130,8 @@ public static class Remember
         var rememberedKey3 = GetInternal(key3Postfix, () => key3);
         var rememberedKey4 = GetInternal(key4Postfix, () => key4);
 
-        if (!rememberedKey1!.Equals(key1) || !rememberedKey2!.Equals(key2) || !rememberedKey3!.Equals(key3) ||
-            !rememberedKey4!.Equals(key4))
+        if (!rememberedKey1.Equals(key1) || !rememberedKey2.Equals(key2) || !rememberedKey3.Equals(key3) ||
+            !rememberedKey4.Equals(key4))
         {
             ForgetInternal<TKey1>(key1Postfix);
             GetInternal(key1Postfix, () => key1);

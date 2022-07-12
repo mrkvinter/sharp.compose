@@ -1,4 +1,6 @@
-﻿namespace SharpCompose.Base.ComposesApi.Providers;
+﻿using SharpCompose.Base.Nodes;
+
+namespace SharpCompose.Base.ComposesApi.Providers;
 
 public record Provider(Action StartProvide);
 
@@ -14,13 +16,18 @@ public class LocalProvider<T> : LocalProvider
     {
         get
         {
-            var node = Composer.Instance.Current!;
-            while (node != null)
+            var group = Composer.Instance.CurrentGroup;
+            while (group != null)
             {
-                if (node.Locals.TryGetValue(id, out var result))
+                if (group.Locals.TryGetValue(id, out var result))
                     return (T) result;
 
-                node = node.Parent;
+                var parent = group.Parent;
+                while (parent != null && parent is not IGroupNode)
+                {
+                    parent = parent.Parent;
+                }
+                group = parent as IGroupNode;
             }
             
             return defaultValue;
@@ -37,6 +44,6 @@ public class LocalProvider<T> : LocalProvider
 
     public Provider Provide(T newValue)
     {
-        return new Provider(() => Composer.Instance.Current!.Locals[id] = newValue!);
+        return new Provider(() => Composer.Instance.CurrentGroup.Locals[id] = newValue!);
     }
 }

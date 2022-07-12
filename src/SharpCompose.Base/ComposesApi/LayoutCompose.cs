@@ -31,15 +31,18 @@ public static partial class BaseCompose
             (boxModifier?.SelfModifier ?? IModifier.Empty).Then(new DebugModifier
                 {ScopeName = nameof(BoxWithConstraints)}), (_, constraints) =>
             {
-                Composer.Instance.Scopes.Push(layoutNode);
+                Composer.Instance.Groups.Push(layoutNode.GroupNode);
                 content?.Invoke(constraints);
-                Composer.Instance.StopScope();
+                Composer.Instance.EndGroup();
 
-                var measures = layoutNode.Children.SelectMany(e => e.Nodes.Select(e => e.Measurable)).ToArray();
+                var measures = layoutNode.GroupNode.Nodes.Select(e => e.Measurable).ToArray();
                 return BoxLayout.Measure(alignment ?? Alignment.TopStart)(measures, constraints);
             });
+        Composer.Instance.StartGroup();
 
-        layoutNode = (LayoutNode)Composer.Instance.Scopes.Pop();
+        Composer.Instance.Groups.Pop();
+
+        layoutNode = (LayoutNode)Composer.Instance.UINodes.Pop();
     }
 
     public static void Column(ScopeModifier? columnModifier = default, IAlignment? horizontalAlignment = null,

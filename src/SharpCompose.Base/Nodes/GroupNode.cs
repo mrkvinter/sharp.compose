@@ -1,6 +1,6 @@
-﻿namespace SharpCompose.Base;
+﻿namespace SharpCompose.Base.Nodes;
 
-public class GroupNode : INode
+public class GroupNode : IGroupNode
 {
     private readonly List<INode> children = new();
 
@@ -11,6 +11,8 @@ public class GroupNode : INode
     public Dictionary<int, object> Locals { get; } = new();
 
     public INode Parent { get; init; }
+
+    public Dictionary<string, int> CountNodes { get; } = new();
 
     public IEnumerable<LayoutNode> Nodes
     {
@@ -40,9 +42,9 @@ public class GroupNode : INode
         UnusedChildren.AddRange(children);
     }
 
-    public void AddChild(INode scope)
+    public void AddChild(INode node)
     {
-        children.Add(scope);
+        children.Add(node);
     }
         
     public void Clear()

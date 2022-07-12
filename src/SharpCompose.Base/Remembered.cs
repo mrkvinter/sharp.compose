@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using SharpCompose.Drawer.Core;
+using SharpCompose.Base.Nodes;
 
 namespace SharpCompose.Base;
 
@@ -38,27 +38,25 @@ public class Remembered
 
 internal interface IState
 {
-    public object InternalValue { get; set; }
-}
-
-public class MutableState<TValue> : IState
-{
-    private readonly IState thisRemembered;
-    private readonly HashSet<INode> nodesToChange = new();
+    private readonly HashSet<IGroupNode> nodesToChange = new();
+    private TValue value;
 
     public TValue Value
     {
         get
         {
-            if (Composer.Instance.Current != null) nodesToChange.Add(Composer.Instance.Current);
-            return (TValue) thisRemembered.InternalValue;
+            if (Composer.Instance.PossibleCurrentGroup != null)
+                nodesToChange.Add(Composer.Instance.PossibleCurrentGroup);
+
+            return value;
         }
         set
         {
-            if (thisRemembered.InternalValue.Equals(value))
+            if (this.value.Equals(value))
                 return;
 
-            thisRemembered.InternalValue = value!;
+            this.value = value;
+
             foreach (var node in nodesToChange)
             {
                 SetChange(node);
@@ -68,35 +66,21 @@ public class MutableState<TValue> : IState
         }
     }
 
-    private void SetChange(INode node)
+    private static void SetChange(IGroupNode groupNode)
     {
-        switch (node)
+        foreach (var childGroupNode in groupNode.Nodes)
         {
-            case GroupNode groupNode:
-            {
-                foreach (var childGroupNode in groupNode.Nodes)
-                {
-                    childGroupNode.Changed = true;
-                    childGroupNode.Children.ForEach(SetChange);
-                }
-                break;
-            }
-            case LayoutNode scope:
-            {
-                scope.Changed = true;
-                scope.Children.ForEach(SetChange);
-                break;
-            }
+            childGroupNode.Changed = true;
+            SetChange(childGroupNode.GroupNode);
         }
     }
 
     public MutableState(TValue value)
     {
-        thisRemembered = this;
-        thisRemembered.InternalValue = value!;
+        this.value = value;
     }
 
     object IState.InternalValue { get; set; } = null!;
 
-    public override string ToString() => $"MutableState<{typeof(TValue)}>({thisRemembered.InternalValue})";
+    public override string ToString() => $"MutableState<{typeof(TValue)}>({value})";
 }

@@ -36,10 +36,12 @@ public static partial class BaseCompose
         var textDrawerModifier = Remember.Get(text, textStyle, color,
             () => new TextDrawModifier(text, textStyle.FontSize, textStyle.Font, textAlignment, new SolidColorBrush(color)));
         
-        Composer.Instance.StartScope(
+        Composer.Instance.StartNode(
             modifier
                 .Then(textDrawerModifier)
                 .Then(new DebugModifier {ScopeName = nameof(TextElement)}), MeasureText);
-        Composer.Instance.StopScope();
+        Composer.Instance.StartGroup();
+        Composer.Instance.EndGroup();
+        Composer.Instance.EndNode();
     }
 }

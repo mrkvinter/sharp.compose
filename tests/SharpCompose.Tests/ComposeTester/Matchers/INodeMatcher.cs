@@ -1,4 +1,4 @@
-﻿using SharpCompose.Base;
+﻿using SharpCompose.Base.Nodes;
 
 namespace TestSharpCompose.ComposeTester.Matchers;
 
