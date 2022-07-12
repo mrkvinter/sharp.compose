@@ -2,5 +2,5 @@
 
 public static class UtilsExtensions
 {
-    public static MutableState<T> AsMutableState<T>(this T self) => new(self);
+    public static MutableState<T> AsMutableState<T>(this T self) where T : notnull => new(self);
 }

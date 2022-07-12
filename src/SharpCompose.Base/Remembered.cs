@@ -20,7 +20,7 @@ public class Remembered
         return false;
     }
 
-    public void AddRemembered<T>(string key, T value) =>
+    public void AddRemembered<T>(string key, T value) where T : notnull =>
         remembered.Add(key, value);
 
     public void RemoveRemembered(string key) =>
@@ -36,7 +36,7 @@ public class Remembered
     }
 }
 
-internal interface IState
+public class MutableState<TValue> where TValue : notnull
 {
     private readonly HashSet<IGroupNode> nodesToChange = new();
     private TValue value;

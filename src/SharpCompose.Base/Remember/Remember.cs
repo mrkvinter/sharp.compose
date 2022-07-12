@@ -13,7 +13,8 @@ public static class Remember
     }
 
     [ComposableApi]
-    private static T GetInternal<T>(string postfixKey, Func<T> creator)
+    internal static T GetInternal<T>(string postfixKey, Func<T> creator) 
+        where T : notnull
     {
         var key = ComposeKey.GetKey(postfixKey);
         var current = Composer.Instance.CurrentGroup;
@@ -31,7 +32,8 @@ public static class Remember
     }
 
     [ComposableApi]
-    public static T Get<T>(Func<T> creator)
+    public static T Get<T>(Func<T> creator) 
+        where T : notnull
     {
         var key = ComposeKey.GetKey();
         var current = Composer.Instance.CurrentGroup;
@@ -49,13 +51,15 @@ public static class Remember
     }
 
     [ComposableApi]
-    public static T Get<TKey, T>(TKey key, Func<T> creator)
+    public static T Get<TKey, T>(TKey key, Func<T> creator) 
+        where TKey : notnull 
+        where T : notnull
     {
         const string keyPostfix = "_key";
         const string valuePostfix = "_val";
         var rememberedKey = GetInternal(keyPostfix, () => key);
 
-        if (!rememberedKey!.Equals(key))
+        if (!rememberedKey.Equals(key))
         {
             ForgetInternal<TKey>(keyPostfix);
             GetInternal(keyPostfix, () => key);
@@ -68,6 +72,9 @@ public static class Remember
 
     [ComposableApi]
     public static T Get<TKey1, TKey2, T>(TKey1 key1, TKey2 key2, Func<T> creator)
+        where TKey1 : notnull 
+        where TKey2 : notnull 
+        where T : notnull
     {
         const string key1Postfix = "_key1";
         const string key2Postfix = "_key2";
@@ -91,6 +98,10 @@ public static class Remember
 
     [ComposableApi]
     public static T Get<TKey1, TKey2, TKey3, T>(TKey1 key1, TKey2 key2, TKey3 key3, Func<T> creator)
+        where TKey1 : notnull 
+        where TKey2 : notnull 
+        where TKey3 : notnull 
+        where T : notnull
     {
         const string key1Postfix = "_key1";
         const string key2Postfix = "_key2";
@@ -119,6 +130,11 @@ public static class Remember
 
     [ComposableApi]
     public static T Get<TKey1, TKey2, TKey3, TKey4, T>(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, Func<T> creator)
+        where TKey1 : notnull
+        where TKey2 : notnull
+        where TKey3 : notnull
+        where TKey4 : notnull
+        where T : notnull
     {
         const string key1Postfix = "_key1";
         const string key2Postfix = "_key2";
@@ -152,11 +168,13 @@ public static class Remember
     }
 
     [ComposableApi]
-    public static ILaunchedEffect LaunchedEffect<T>(T key, Func<CancellationToken, Task> action)
+    public static ILaunchedEffect LaunchedEffect<TKey>(TKey key, Func<CancellationToken, Task> action) 
+        where TKey : notnull 
         => Get(key, () => new LaunchedEffectImpl(action));
 
     [ComposableApi]
-    public static ILaunchedEffect LaunchedEffect<T>(T key, Action action)
+    public static ILaunchedEffect LaunchedEffect<TKey>(TKey key, Action action)
+        where TKey : notnull
         => Get(key, () => new LaunchedEffectImpl(_ =>
         {
             action();
