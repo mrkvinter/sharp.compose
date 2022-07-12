@@ -18,7 +18,7 @@ public static partial class BaseCompose
 
     public static readonly LocalProvider<IInputHandler> LocalInputHandler = new(default!);
 
-    public static readonly LocalProvider<TextStyle> LocalTextStyle = new(new TextStyle(null, 14, new Font("Helvetica", FontWeight.Regular)));
+    public static readonly LocalProvider<TextStyle> LocalTextStyle = new(new TextStyle(14, new Font("Helvetica", FontWeight.Regular)));
 
     public static readonly LocalProvider<ShapeComponents> LocalShape = new(new ShapeComponents
     {

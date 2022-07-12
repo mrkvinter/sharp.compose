@@ -3,4 +3,7 @@ using SharpCompose.Drawer.Core;
 
 namespace SharpCompose.Base.ComposesApi.Providers;
 
-public record TextStyle(Color? Color, double FontSize, Font Font);
+public record TextStyle(double FontSize, Font Font)
+{
+    public Color? Color { get; init; }
+}
