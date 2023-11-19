@@ -10,36 +10,29 @@ using SharpCompose.Drawer.Core.Utilities;
 
 namespace SharpCompose.WinUI
 {
-    public abstract class ComposeWindow : Window, IInputHandler
+    public abstract class ComposeWindow : Window
     {
         private WinUICanvas composeCanvas;
+        private readonly InputHandler inputHandler;
         private readonly DispatcherTimer timer;
         private readonly CanvasControl canvas;
         private bool init;
 
-        public event Action MouseDown;
-        public event Action MouseUp;
-        public event Action<int, int> MouseMove;
-        public event Action<KeyCode> KeyDown;
-        public event Action<string> OnTextInput;
-
-        public (int x, int y) MousePosition { get; private set; }
-
         protected ComposeWindow()
         {
             canvas = new CanvasControl();
+            inputHandler = new InputHandler(SetCursor);
             Content = canvas;
 
             canvas.PointerMoved += (_, args) =>
             {
                 var pointer = args.GetCurrentPoint(canvas);
-                MousePosition = ((int) pointer.Position.X, (int) pointer.Position.Y);
-                MouseMove?.Invoke((int) pointer.Position.X, (int) pointer.Position.Y);
+                inputHandler.OnMouseMove((int)pointer.Position.X, (int)pointer.Position.Y);
             };
 
-            canvas.PointerPressed += (_, _) => MouseDown?.Invoke();
-            canvas.PointerReleased += (_, _) => MouseUp?.Invoke();
-            canvas.KeyDown += (_, arg) => KeyDown?.Invoke((KeyCode) arg.Key);
+            canvas.PointerPressed += (_, _) => inputHandler.OnMouseDown();
+            canvas.PointerReleased += (_, _) => inputHandler.OnMouseUp();
+            canvas.KeyDown += (_, arg) => inputHandler.OnKeyDown((KeyCode) arg.Key);
 
             canvas.CreateResources += Canvas_CreateResources;
 
@@ -60,7 +53,7 @@ namespace SharpCompose.WinUI
             if (Composer.Instance.RecomposingAsk && Bounds.Width > 0 && Bounds.Height > 0)
             {
                 composeCanvas.Size = new IntSize((int) Bounds.Width, (int) Bounds.Height);
-                Composer.Compose(this, SetContent);
+                Composer.Compose(inputHandler, SetContent);
                 Composer.Layout();
                 canvas.Invalidate();
             }

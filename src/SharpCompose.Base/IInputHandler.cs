@@ -6,16 +6,20 @@ public interface IInputHandler
 {
     (int x, int y) MousePosition { get; }
 
-    event Action MouseDown;
+    void SubscribeMouseDown(string uniqKey, Action callback);
+    void DisposeMouseDown(string uniqKey);
 
-    event Action MouseUp;
+    void SubscribeMouseUp(string uniqKey, Action callback);
+    void DisposeMouseUp(string uniqKey);
 
-    event Action<int, int> MouseMove;
-    
-    event Action<KeyCode> KeyDown;
+    void SubscribeMouseMove(string uniqKey, Action<int, int> callback);
+    void DisposeMouseMove(string uniqKey);
 
-    event Action<string> OnTextInput; 
+    void SubscribeKeyDown(string uniqKey, Action<KeyCode> callback);
+    void DisposeKeyDown(string uniqKey);
 
+    void SubscribeTextInput(string uniqKey, Action<string> callback);
+    void DisposeTextInput(string uniqKey);
 
     void SetCursor(Cursor cursor);
 }

@@ -80,7 +80,5 @@ public class MutableState<TValue> where TValue : notnull
         this.value = value;
     }
 
-    object IState.InternalValue { get; set; } = null!;
-
     public override string ToString() => $"MutableState<{typeof(TValue)}>({value})";
 }

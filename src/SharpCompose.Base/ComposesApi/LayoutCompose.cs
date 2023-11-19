@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using SharpCompose.Base.Layouting;
 using SharpCompose.Base.Modifiers;
+using SharpCompose.Base.Modifiers.Extensions;
 using SharpCompose.Base.Nodes;
 
 namespace SharpCompose.Base.ComposesApi;
@@ -29,7 +30,7 @@ public static partial class BaseCompose
         LayoutNode layoutNode = default!;
         Composer.Instance.StartNode(
             (boxModifier?.SelfModifier ?? IModifier.Empty).Then(new DebugModifier
-                {ScopeName = nameof(BoxWithConstraints)}), (_, constraints) =>
+                {ScopeName = nameof(BoxWithConstraints)}), [RootComposableApi] (_, constraints) =>
             {
                 Composer.Instance.Groups.Push(layoutNode.GroupNode);
                 content?.Invoke(constraints);
@@ -39,7 +40,6 @@ public static partial class BaseCompose
                 return BoxLayout.Measure(alignment ?? Alignment.TopStart)(measures, constraints);
             });
         Composer.Instance.StartGroup();
-
         Composer.Instance.Groups.Pop();
 
         layoutNode = (LayoutNode)Composer.Instance.UINodes.Pop();

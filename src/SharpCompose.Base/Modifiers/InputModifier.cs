@@ -18,6 +18,7 @@ public sealed class OnMouseInputModifier : IInputModifier
     public Action? OnMouseOut { get; init; }
     public Action? OnMouseDown { get; init; }
     public Action? OnMouseUp { get; init; }
+    public BoundState BoundState => boundState.Value;
 
     public OnMouseInputModifier(MutableState<BoundState> boundState)
     {

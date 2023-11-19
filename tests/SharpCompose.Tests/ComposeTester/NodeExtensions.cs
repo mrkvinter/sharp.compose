@@ -16,7 +16,7 @@ public static class NodeExtensions
         while (scopes.TryDequeue(out var layoutNode))
         {
             if (nodeMatcher.Match(layoutNode))
-                return new Node(layoutNode);
+                return node with { LayoutNode = layoutNode };
 
             layoutNode.GroupNode.Nodes.ForEach(scopes.Enqueue);
         }
@@ -35,16 +35,15 @@ public static class NodeExtensions
 
     public static Node PerformClick(this Node node)
     {
-        var inputModifier =
+        var mousePos =
             node.LayoutNode.Modifier.SqueezeModifiers()
                 .Select(e => e as OnMouseInputModifier)
                 .Where(e => e != null)
                 .Cast<OnMouseInputModifier>()
-                .ToArray();
-
-        inputModifier.ForEach(e => e.OnMouseOver?.Invoke());
-        inputModifier.ForEach(e => e.OnMouseDown?.Invoke());
-        inputModifier.ForEach(e => e.OnMouseUp?.Invoke());
+                .First()
+                .BoundState;
+        
+        node.ComposeTester.Click(mousePos);
 
         return node;
     }
@@ -58,5 +57,7 @@ public sealed class TestIdModifier : IModifier.IElement
 public static class TestModifierExtensions
 {
     public static T Id<T>(this T self, string id) where T : IScopeModifier<T>
-        => self.Then(new TestIdModifier {Id = id});
+        => self
+            .Then(new TestIdModifier {Id = id})
+            .Then(new DebugModifier {ScopeName = id});
 }

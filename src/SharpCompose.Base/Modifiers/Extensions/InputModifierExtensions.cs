@@ -11,18 +11,18 @@ public static class InputModifierExtensions
         var buttonState = Remember.Get(() => new BaseCompose.ButtonState().AsMutableState());
 
         return self
-            .OnMouseOver(() => buttonState.Value = buttonState.Value with {IsHovered = true})
-            .OnMouseOut(() => buttonState.Value = buttonState.Value with {IsHovered = false})
+            .OnMouseOver(() => buttonState.Value = buttonState.Value with { IsHovered = true })
+            .OnMouseOut(() => buttonState.Value = buttonState.Value with { IsHovered = false })
             .OnMouseDown(() =>
             {
-                if (buttonState.Value.IsHovered) buttonState.Value = buttonState.Value with {IsPressed = true};
+                if (buttonState.Value.IsHovered) buttonState.Value = buttonState.Value with { IsPressed = true };
             })
             .OnMouseUp(() =>
             {
                 if (buttonState.Value.IsPressed && buttonState.Value.IsHovered)
                     callback();
 
-                buttonState.Value = buttonState.Value with {IsPressed = false};
+                buttonState.Value = buttonState.Value with { IsPressed = false };
             });
     }
 
@@ -78,8 +78,7 @@ public static class InputModifierExtensions
     {
         var inputHandler = BaseCompose.LocalInputHandler.Value;
         var mouseState = Remember.Get(
-            () => new MouseState(IsMouseOver(inputHandler.MousePosition.x,
-                inputHandler.MousePosition.y, boundMutableState.Value)).AsMutableState());
+            () => new MouseState(false).AsMutableState());
 
         void OnMouseMove(int mouseX, int mouseY)
         {
@@ -96,27 +95,39 @@ public static class InputModifierExtensions
             }
         }
 
-        void OnMouseDownAction() => mouseInputModifier.OnMouseDown?.Invoke();
-        void OnMouseUpAction() => mouseInputModifier.OnMouseUp?.Invoke();
+        void OnMouseDownAction() =>
+            mouseInputModifier.OnMouseDown?.Invoke();
 
-        Remember
-            .LaunchedEffect(true, () => inputHandler.MouseMove += OnMouseMove)
-            .OnDispose(() => inputHandler.MouseMove -= OnMouseMove);
+        void OnMouseUpAction() =>
+            mouseInputModifier.OnMouseUp?.Invoke();
 
+        var keyMouseMove = ComposeKey.GetKey();
         Remember
-            .LaunchedEffect(true, () => inputHandler.MouseDown += OnMouseDownAction)
-            .OnDispose(() => inputHandler.MouseDown -= OnMouseDownAction);
+            .LaunchedEffect(true, () => inputHandler.SubscribeMouseMove(keyMouseMove, OnMouseMove))
+            .OnDispose(() => inputHandler.DisposeMouseMove(keyMouseMove));
 
-        Remember
-            .LaunchedEffect(true, () => inputHandler.MouseUp += OnMouseUpAction)
-            .OnDispose(() => inputHandler.MouseUp -= OnMouseUpAction);
+        if (mouseInputModifier.OnMouseDown != null)
+        {
+            var keyMouseDown = ComposeKey.GetKey();
+            Remember
+                .LaunchedEffect(true, () => inputHandler.SubscribeMouseDown(keyMouseDown, OnMouseDownAction))
+                .OnDispose(() => inputHandler.DisposeMouseDown(keyMouseDown));
+        }
+
+        if (mouseInputModifier.OnMouseUp != null)
+        {
+            var keyMouseUp = ComposeKey.GetKey();
+            Remember
+                .LaunchedEffect(true, () => inputHandler.SubscribeMouseUp(keyMouseUp, OnMouseUpAction))
+                .OnDispose(() => inputHandler.DisposeMouseUp(keyMouseUp));
+        }
 
         return modifier.Then(mouseInputModifier);
     }
 
     private static bool IsMouseOver(int mouseX, int mouseY, BoundState boundState)
-        => mouseX >= boundState.XOffset && mouseX <= boundState.XOffset + boundState.Width &&
-           mouseY >= boundState.YOffset && mouseY <= boundState.YOffset + boundState.Height;
+        => mouseX >= boundState.XOffset && mouseX < boundState.XOffset + boundState.Width &&
+           mouseY >= boundState.YOffset && mouseY < boundState.YOffset + boundState.Height;
 
     public static T OnInputKeyDown<T>(
         this T modifier,
@@ -124,9 +135,10 @@ public static class InputModifierExtensions
     {
         var inputHandler = BaseCompose.LocalInputHandler.Value;
 
+        var key = ComposeKey.GetKey();
         Remember
-            .LaunchedEffect(true, () => inputHandler.KeyDown += onInputKeyDown)
-            .OnDispose(() => inputHandler.KeyDown -= onInputKeyDown);
+            .LaunchedEffect(true, () => inputHandler.SubscribeKeyDown(key, onInputKeyDown))
+            .OnDispose(() => inputHandler.DisposeKeyDown(key));
 
         return modifier;
     }
@@ -136,9 +148,9 @@ public static class InputModifierExtensions
         Action<string> onInputText) where T : IScopeModifier<T>
     {
         var inputHandler = BaseCompose.LocalInputHandler.Value;
-
-        Remember.LaunchedEffect(true, () => inputHandler.OnTextInput += onInputText)
-            .OnDispose(() => inputHandler.OnTextInput -= onInputText);
+        var key = ComposeKey.GetKey();
+        Remember.LaunchedEffect(true, () => inputHandler.SubscribeTextInput(key, onInputText))
+            .OnDispose(() => inputHandler.DisposeTextInput(key));
 
         return modifier;
     }

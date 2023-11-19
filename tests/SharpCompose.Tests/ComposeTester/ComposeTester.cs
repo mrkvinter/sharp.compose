@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FakeItEasy;
 using SharpCompose.Base;
+using SharpCompose.Base.Modifiers.Extensions;
 using SharpCompose.Base.Nodes;
 using SharpCompose.Drawer.Core;
 using SharpCompose.Drawer.Core.Utilities;
@@ -11,7 +12,7 @@ namespace TestSharpCompose.ComposeTester;
 public class ComposeTester
 {
     private IntSize size = new(800, 600);
-
+    private readonly InputHandler inputHandler;
     public IntSize Size
     {
         get => size;
@@ -28,8 +29,8 @@ public class ComposeTester
     public ComposeTester(Action setContent)
     {
         this.setContent = setContent;
-        inputHandler = A.Fake<IInputHandler>();
         var canvas = A.Fake<ICanvas>();
+        inputHandler = new InputHandler(SetCursor);
         A.CallTo(() => canvas.Size).ReturnsLazily(() => Size);
 
         Composer.Instance.ForceClear();
@@ -50,7 +51,18 @@ public class ComposeTester
         }
     }
 
-    public Node Root => new(Composer.Instance.Root);
+    public Node Root => new(Composer.Instance.Root, this);
+
+    public void Click(BoundState mousePos)
+    {
+        inputHandler.OnMouseMove(mousePos.XOffset, mousePos.YOffset);
+        inputHandler.OnMouseDown();
+        inputHandler.OnMouseUp();
+    }
+
+    public void SetCursor(Cursor cursor)
+    {
+    }
 }
 
-public record Node(LayoutNode LayoutNode);
+public record Node(LayoutNode LayoutNode, ComposeTester ComposeTester);
