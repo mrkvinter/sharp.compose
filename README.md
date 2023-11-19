@@ -1,11 +1,12 @@
 # Sharp.Compose
 
-SharpCompose is a modern way of creating UI by C#. This framework was inspired of Android Compose.
+SharpCompose is a modern way of creating UI by C#. This framework was inspired of Jetpack Compose.
 
 ```csharp
+[Composable]
 private static void Counter() => Column(content: () =>
 {
-    var counter = Remember.Get(0);
+    var counter = Remember.Get(() => 0.AsMutableState());
 
     Text($"Current count: {counter.Value}");
     Button(() => counter.Value++, "Click me");
