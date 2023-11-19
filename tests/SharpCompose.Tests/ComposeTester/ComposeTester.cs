@@ -24,7 +24,7 @@ public class ComposeTester
     }
 
     private readonly Action setContent;
-    private readonly IInputHandler inputHandler;
+
 
     public ComposeTester(Action setContent)
     {

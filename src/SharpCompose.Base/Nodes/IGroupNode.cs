@@ -13,4 +13,5 @@ public interface IGroupNode : INode
     void SaveUnused();
 
     void AddChild(INode node);
+    void RemoveChild(INode node);
 }

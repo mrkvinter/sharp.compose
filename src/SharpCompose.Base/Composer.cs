@@ -153,7 +153,10 @@ public class Composer
         var groupNode = Groups.Pop();
         groupNode.CountNodes.Clear();
         foreach (var unusedChild in groupNode.UnusedChildren)
+        {
+            groupNode.RemoveChild(unusedChild);
             unusedChild.Clear();
+        }
     }
 
     [ComposableApi]

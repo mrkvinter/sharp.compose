@@ -32,4 +32,9 @@ public class RootNode : LayoutNode, IGroupNode
     {
         rootGroupNode.AddChild(node);
     }
+
+    public void RemoveChild(INode node)
+    {
+        rootGroupNode.RemoveChild(node);
+    }
 }

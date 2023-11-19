@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SharpCompose.Base;
 using SharpCompose.Base.Extensions;
+using SharpCompose.Base.Modifiers.Extensions;
 using TestSharpCompose.ComposeTester;
 
 namespace TestSharpCompose;
@@ -73,6 +74,54 @@ public class LaunchedEffectTest
 
         Assert.IsNotNull(anotherData);
     }
+    
+    [Test]
+    public async Task LaunchedEffect_NoScoped_Dispose()
+    {
+        var box1Clicked = false.AsMutableState();
+        var box2Clicked = false.AsMutableState();
+        var composeTester = new ComposeTester.ComposeTester(() => DisappearingButton(box1Clicked, box2Clicked));
+
+        composeTester.Root.OnNodeWithId("button")?.PerformClick();
+        await composeTester.RecomposeAsync();
+        composeTester.Root.OnNodeWithId("Box_1")?.PerformClick();
+        await composeTester.RecomposeAsync();
+        composeTester.Root.OnNodeWithId("Box_2")?.PerformClick();
+        await composeTester.RecomposeAsync();
+
+        Assert.IsFalse(box1Clicked.Value);
+        Assert.IsTrue(box2Clicked.Value);
+    }
+    
+    [Test]
+    public async Task LaunchedEffect_BoxWithConstraints_Dispose()
+    {
+        var box1Clicked = false.AsMutableState();
+        var box2Clicked = false.AsMutableState();
+        var composeTester = new ComposeTester.ComposeTester(() => DisappearingButtonBoxWithConstraints(box1Clicked, box2Clicked));
+
+        await composeTester.RecomposeAsync();
+        composeTester.Size = new(50, 50);
+        await composeTester.RecomposeAsync();
+        composeTester.Root.OnNodeWithId("Box_1")?.PerformClick();
+        composeTester.Root.OnNodeWithId("Box_2")?.PerformClick();
+        await composeTester.RecomposeAsync();
+
+        Assert.IsFalse(box1Clicked.Value);
+        Assert.IsTrue(box2Clicked.Value);
+    }
+    
+    [Test]
+    public async Task LaunchedEffect_NoScopedAndNoUsed_Dispose()
+    {
+        var disposed = false.AsMutableState();
+        var composeTester = new ComposeTester.ComposeTester(() => NotUsedLaunchedEffect(disposed));
+
+        composeTester.Root.OnNodeWithId("button")?.PerformClick();
+        await composeTester.RecomposeAsync();
+
+        Assert.IsTrue(disposed.Value);
+    }
 
     [Composable]
     private static void FetchData_ScopedState()
@@ -115,6 +164,43 @@ public class LaunchedEffectTest
             Box(content: () => Text("not data"));
         else
             Box(content: () => Text(string.Join(" ", data.Value)));
+    }
+    
+    [Composable]
+    private static void DisappearingButton(MutableState<bool> box1Clicked, MutableState<bool> box2Clicked)
+    {
+        var clicked = Remember.Get(() => false.AsMutableState());
+
+        Button(() => clicked.Value = true, "click", Modifier.Id("button"));
+
+        if (!clicked.Value)
+            Box(Modifier.Id("Box_1").Padding(50).Size(10).Clickable(() => box1Clicked.Value = true), content: () => Text("box 1"));
+        else
+            Box(Modifier.Id("Box_2").Padding(50).Size(10).Clickable(() => box2Clicked.Value = true), content: () => Text("box 2"));
+    }
+    
+    [Composable]
+    private static void DisappearingButtonBoxWithConstraints(MutableState<bool> box1Clicked, MutableState<bool> box2Clicked)
+    {
+        BoxWithConstraints(content: constraints =>
+        {
+            if (constraints.MaxWidth >= 100)
+                Box(Modifier.Id("Box_1").Size(10).Clickable(() => box1Clicked.Value = true), content: () => Text("box 1"));
+            else
+                Box(Modifier.Id("Box_2").Size(10).Clickable(() => box2Clicked.Value = true), content: () => Text("box 2"));
+        });
+    }
+    
+    [Composable]
+    private static void NotUsedLaunchedEffect(MutableState<bool> disposed)
+    {
+        var clicked = Remember.Get(() => false.AsMutableState());
+
+        Button(() => clicked.Value = true, "click", Modifier.Id("button"));
+
+        if (!clicked.Value)
+            Remember.LaunchedEffect(true, () => {})
+                .OnDispose(() => disposed.Value = true);
     }
 
     private static async Task<int[]?> GetData()

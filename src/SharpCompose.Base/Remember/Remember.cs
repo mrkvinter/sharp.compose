@@ -168,16 +168,24 @@ public static class Remember
     }
 
     [ComposableApi]
-    public static ILaunchedEffect LaunchedEffect<TKey>(TKey key, Func<CancellationToken, Task> action) 
-        where TKey : notnull 
-        => Get(key, () => new LaunchedEffectImpl(action));
+    public static ILaunchedEffect LaunchedEffect<TKey>(TKey key, Func<CancellationToken, Task> action)
+        where TKey : notnull
+    {
+        Composer.Instance.StartGroup();
+        var launchedEffect = Get(key, () => new LaunchedEffectAsyncImpl(action));
+        Composer.Instance.EndGroup();
+        
+        return launchedEffect;
+    }
 
     [ComposableApi]
     public static ILaunchedEffect LaunchedEffect<TKey>(TKey key, Action action)
         where TKey : notnull
-        => Get(key, () => new LaunchedEffectImpl(_ =>
-        {
-            action();
-            return Task.CompletedTask;
-        }));
+    {
+        Composer.Instance.StartGroup();
+        var launchedEffect = Get(key, () => new LaunchedEffectImpl(action));
+        Composer.Instance.EndGroup();
+        
+        return launchedEffect;
+    }
 }

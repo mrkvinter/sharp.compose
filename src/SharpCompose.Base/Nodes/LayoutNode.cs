@@ -72,7 +72,10 @@ public class LayoutNode : IUINode
     public void Clear()
     {
         GroupNode.Clear();
-        GroupNode.Nodes.ForEach(e => e.Clear());
+        foreach (var node in GroupNode.Nodes)
+        {
+            node.Clear();
+        }
         Remembered.Clear();
     }
 

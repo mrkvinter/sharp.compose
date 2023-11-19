@@ -218,10 +218,13 @@ public class RememberTests
     private static void RememberContent()
     {
         var state = Remember.Get(() => false.AsMutableState());
-        var v = Remember.Get(state.Value, () => new TestValue());
+        var v = Remember.Get(state.Value, () => 0.AsMutableState());
 
-        Button(() => state.Value = true, label: "Click", Modifier.Id("State"));
-        Button(() => v.Value++, label: "Increment", Modifier.Id("Increment"));
+        Row(content: () =>
+        {
+            Button(() => state.Value = true, label: "Click", Modifier.Id("State"));
+            Button(() => v.Value++, label: "Increment", Modifier.Id("Increment"));
+        });
 
         Text(v.Value.ToString());
     }

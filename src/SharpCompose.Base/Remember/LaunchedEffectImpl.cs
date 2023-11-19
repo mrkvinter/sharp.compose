@@ -1,27 +1,23 @@
-﻿namespace SharpCompose.Base;
+namespace SharpCompose.Base;
 
 public class LaunchedEffectImpl : IRememberObserver, ILaunchedEffect
 {
-    private readonly Func<CancellationToken, Task> task;
+    private readonly Action action;
     private Action? disposeCallback;
-    private CancellationTokenSource cancellationSource;
 
-    public LaunchedEffectImpl(Func<CancellationToken, Task> task)
+    public LaunchedEffectImpl(Action action)
     {
-        this.task = task;
-        cancellationSource = new CancellationTokenSource();
+        this.action = action;
     }
 
     public void OnRemember()
     {
-        Task.Run(async () => await task(cancellationSource.Token));
+        action();
     }
 
     public void OnForgotten()
     {
-        cancellationSource.Cancel();
         disposeCallback?.Invoke();
-        cancellationSource = new CancellationTokenSource();
     }
 
     public void OnDispose(Action onDisposeAction)

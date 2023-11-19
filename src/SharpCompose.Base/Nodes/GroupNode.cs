@@ -46,7 +46,12 @@ public class GroupNode : IGroupNode
     {
         children.Add(node);
     }
-        
+
+    public void RemoveChild(INode node)
+    {
+        children.Remove(node);
+    }
+   
     public void Clear()
     {
         children.ForEach(c => c.Clear());
