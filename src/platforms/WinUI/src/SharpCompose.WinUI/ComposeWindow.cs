@@ -18,6 +18,10 @@ namespace SharpCompose.WinUI
         private readonly CanvasControl canvas;
         private bool init;
 
+        public static long ComposeTime { get; private set; }
+        public static long LayoutTime { get; private set; }
+        public static long DrawTime { get; private set; }
+        
         protected ComposeWindow()
         {
             canvas = new CanvasControl();
@@ -41,6 +45,8 @@ namespace SharpCompose.WinUI
             timer = new DispatcherTimer();
             timer.Tick += Tick;
             timer.Interval = TimeSpan.FromMilliseconds(1);
+            
+            ComposerHotReloader.HotReload += Composer.Recompose;
         }
 
         [Composable]
@@ -53,9 +59,21 @@ namespace SharpCompose.WinUI
             if (Composer.Instance.RecomposingAsk && Bounds.Width > 0 && Bounds.Height > 0)
             {
                 composeCanvas.Size = new IntSize((int) Bounds.Width, (int) Bounds.Height);
-                Composer.Compose(inputHandler, SetContent);
+                var sw = new System.Diagnostics.Stopwatch();
+                sw.Start();
+                Composer.RecomposeTree();
+                sw.Stop();
+                ComposeTime = sw.ElapsedMilliseconds;
+                
+                sw.Restart();
                 Composer.Layout();
+                sw.Stop();
+                LayoutTime = sw.ElapsedMilliseconds;
+                
+                sw.Restart();
                 canvas.Invalidate();
+                sw.Stop();
+                DrawTime = sw.ElapsedMilliseconds;
             }
         }
 
@@ -66,6 +84,11 @@ namespace SharpCompose.WinUI
             {
                 await LoadResources();
                 Composer.Recompose();
+                
+                composeCanvas = new WinUICanvas(canvas);
+                Composer.Instance.Init(composeCanvas);
+                Composer.Compose(inputHandler, SetContent);
+                
                 timer.Start();
             }
 
@@ -74,9 +97,6 @@ namespace SharpCompose.WinUI
 
             init = true;
             args.TrackAsyncAction(Load().AsAsyncAction());
-
-            composeCanvas = new WinUICanvas(canvas);
-            Composer.Instance.Init(composeCanvas);
 
             canvas.Draw += (_, drawEventArgs) =>
             {
