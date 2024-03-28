@@ -1,4 +1,4 @@
-﻿using SharpCompose.Base.Nodes;
+﻿using SharpCompose.Base.Extensions;
 
 namespace SharpCompose.Base.ComposesApi.Providers;
 
@@ -9,6 +9,7 @@ public abstract class LocalProvider
     protected static int CountProviders { get; set; }
 }
 public class LocalProvider<T> : LocalProvider
+    where T : IEquatable<T>
 {
     private readonly T defaultValue;
 
@@ -17,18 +18,9 @@ public class LocalProvider<T> : LocalProvider
         get
         {
             var group = Composer.Instance.CurrentGroup;
-            while (group != null)
-            {
-                if (group.Locals.TryGetValue(id, out var result))
-                    return (T) result;
-
-                var parent = group.Parent;
-                while (parent != null && parent is not IGroupNode)
-                {
-                    parent = parent.Parent;
-                }
-                group = parent as IGroupNode;
-            }
+            
+            if (group.Locals.TryGetValue(id, out var result))
+                return ((MutableState<T>) result).Value;
             
             return defaultValue;
         }
@@ -44,6 +36,15 @@ public class LocalProvider<T> : LocalProvider
 
     public Provider Provide(T newValue)
     {
-        return new Provider(() => Composer.Instance.CurrentGroup.Locals[id] = newValue!);
+        return new Provider(() =>
+        {
+            var state = Remember.Get(() =>
+            {
+                var state = newValue.AsMutableState();
+                Composer.Instance.CurrentGroup.Locals[id] = state;
+                return state;
+            });
+            state.Value = newValue;
+        });
     }
 }

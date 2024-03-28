@@ -20,11 +20,9 @@ public static partial class BaseCompose
 
     public static readonly LocalProvider<TextStyle> LocalTextStyle = new(new TextStyle(14, new Font("Helvetica", FontWeight.Regular)));
 
-    public static readonly LocalProvider<ShapeComponents> LocalShape = new(new ShapeComponents
-    {
-        Small = Shapes.RoundCorner(4),
-        Medium = Shapes.RoundCorner(8),
-        Large = Shapes.RoundCorner(0),
-    });
+    public static readonly LocalProvider<ShapeComponents> LocalShape = new(new ShapeComponents(
+        Small: Shapes.RoundCorner(4),
+        Medium: Shapes.RoundCorner(8),
+        Large: Shapes.RoundCorner(0)));
 }
 

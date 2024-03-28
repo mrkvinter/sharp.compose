@@ -3,9 +3,8 @@ namespace SharpCompose.Base;
 public static class Remember
 {
     [ComposableApi]
-    private static void ForgetInternal<T>(string postfixKey)
+    private static void ForgetInternal<T>(string key)
     {
-        var key = ComposeKey.GetKey(postfixKey);
         var current = Composer.Instance.CurrentGroup;
         if (!current.Remembered.TryGetNextRemembered<T>(key, out var result)) return;
         if (result is IRememberObserver rememberObserver) rememberObserver.OnForgotten();
@@ -13,11 +12,11 @@ public static class Remember
     }
 
     [ComposableApi]
-    internal static T GetInternal<T>(string postfixKey, Func<T> creator) 
+    private static T GetInternal<T>(string key, Func<T> creator) 
         where T : notnull
     {
-        var key = ComposeKey.GetKey(postfixKey);
         var current = Composer.Instance.CurrentGroup;
+        current.UnusedRememberedKeys.Remove(key);
         if (current.Remembered.TryGetNextRemembered<T>(key, out var result))
         {
             return result;
@@ -37,6 +36,7 @@ public static class Remember
     {
         var key = ComposeKey.GetKey();
         var current = Composer.Instance.CurrentGroup;
+        current.UnusedRememberedKeys.Remove(key);
         if (current.Remembered.TryGetNextRemembered<T>(key, out var result))
         {
             return result;
@@ -54,20 +54,20 @@ public static class Remember
     public static T Get<TKey, T>(TKey key, Func<T> creator) 
         where TKey : notnull 
         where T : notnull
-    {
-        const string keyPostfix = "_key";
-        const string valuePostfix = "_val";
-        var rememberedKey = GetInternal(keyPostfix, () => key);
+     {
+        var keyKey = ComposeKey.GetKey("_key");
+        var valueKey = ComposeKey.GetKey("_val");
+        var rememberedKey = GetInternal(keyKey, () => key);
 
         if (!rememberedKey.Equals(key))
         {
-            ForgetInternal<TKey>(keyPostfix);
-            GetInternal(keyPostfix, () => key);
+            ForgetInternal<TKey>(keyKey);
+            GetInternal(keyKey, () => key);
 
-            ForgetInternal<T>(valuePostfix);
+            ForgetInternal<T>(valueKey);
         }
 
-        return GetInternal(valuePostfix, creator);
+        return GetInternal(valueKey, creator);
     }
 
     [ComposableApi]
@@ -76,24 +76,24 @@ public static class Remember
         where TKey2 : notnull 
         where T : notnull
     {
-        const string key1Postfix = "_key1";
-        const string key2Postfix = "_key2";
-        const string valuePostfix = "_val";
-        var rememberedKey1 = GetInternal(key1Postfix, () => key1);
-        var rememberedKey2 = GetInternal(key2Postfix, () => key2);
+        var keyKey1 = ComposeKey.GetKey("_key1");
+        var keyKey2 = ComposeKey.GetKey("_key2");
+        var valueKey = ComposeKey.GetKey("_val");
+        var rememberedKey1 = GetInternal(keyKey1, () => key1);
+        var rememberedKey2 = GetInternal(keyKey2, () => key2);
 
         if (!rememberedKey1.Equals(key1) || !rememberedKey2.Equals(key2))
         {
-            ForgetInternal<TKey1>(key1Postfix);
-            GetInternal(key1Postfix, () => key1);
+            ForgetInternal<TKey1>(keyKey1);
+            GetInternal(keyKey1, () => key1);
 
-            ForgetInternal<TKey2>(key2Postfix);
-            GetInternal(key2Postfix, () => key2);
+            ForgetInternal<TKey2>(keyKey2);
+            GetInternal(keyKey2, () => key2);
 
-            ForgetInternal<T>(valuePostfix);
+            ForgetInternal<T>(valueKey);
         }
 
-        return GetInternal(valuePostfix, creator);
+        return GetInternal(valueKey, creator);
     }
 
     [ComposableApi]
@@ -103,29 +103,29 @@ public static class Remember
         where TKey3 : notnull 
         where T : notnull
     {
-        const string key1Postfix = "_key1";
-        const string key2Postfix = "_key2";
-        const string key3Postfix = "_key3";
-        const string valuePostfix = "_val";
-        var rememberedKey1 = GetInternal(key1Postfix, () => key1);
-        var rememberedKey2 = GetInternal(key2Postfix, () => key2);
-        var rememberedKey3 = GetInternal(key3Postfix, () => key3);
+        var keyKey1 = ComposeKey.GetKey("_key1");
+        var keyKey2 = ComposeKey.GetKey("_key2");
+        var keyKey3 = ComposeKey.GetKey("_key3");
+        var valueKey = ComposeKey.GetKey("_val");
+        var rememberedKey1 = GetInternal(keyKey1, () => key1);
+        var rememberedKey2 = GetInternal(keyKey2, () => key2);
+        var rememberedKey3 = GetInternal(keyKey3, () => key3);
 
         if (!rememberedKey1.Equals(key1) || !rememberedKey2.Equals(key2) || !rememberedKey3.Equals(key3))
         {
-            ForgetInternal<TKey1>(key1Postfix);
-            GetInternal(key1Postfix, () => key1);
+            ForgetInternal<TKey1>(keyKey1);
+            GetInternal(keyKey1, () => key1);
 
-            ForgetInternal<TKey2>(key2Postfix);
-            GetInternal(key2Postfix, () => key2);
+            ForgetInternal<TKey2>(keyKey2);
+            GetInternal(keyKey2, () => key2);
 
-            ForgetInternal<TKey3>(key3Postfix);
-            GetInternal(key3Postfix, () => key3);
+            ForgetInternal<TKey3>(keyKey3);
+            GetInternal(keyKey3, () => key3);
 
-            ForgetInternal<T>(valuePostfix);
+            ForgetInternal<T>(valueKey);
         }
 
-        return GetInternal(valuePostfix, creator);
+        return GetInternal(valueKey, creator);
     }
 
     [ComposableApi]
@@ -136,44 +136,42 @@ public static class Remember
         where TKey4 : notnull
         where T : notnull
     {
-        const string key1Postfix = "_key1";
-        const string key2Postfix = "_key2";
-        const string key3Postfix = "_key3";
-        const string key4Postfix = "_key4";
-        const string valuePostfix = "_val";
-        var rememberedKey1 = GetInternal(key1Postfix, () => key1);
-        var rememberedKey2 = GetInternal(key2Postfix, () => key2);
-        var rememberedKey3 = GetInternal(key3Postfix, () => key3);
-        var rememberedKey4 = GetInternal(key4Postfix, () => key4);
+        var keyKey1 = ComposeKey.GetKey("_key1");
+        var keyKey2 = ComposeKey.GetKey("_key2");
+        var keyKey3 = ComposeKey.GetKey("_key3");
+        var keyKey4 = ComposeKey.GetKey("_key4");
+        var valueKey = ComposeKey.GetKey("_val");
+        var rememberedKey1 = GetInternal(keyKey1, () => key1);
+        var rememberedKey2 = GetInternal(keyKey2, () => key2);
+        var rememberedKey3 = GetInternal(keyKey3, () => key3);
+        var rememberedKey4 = GetInternal(keyKey4, () => key4);
 
         if (!rememberedKey1.Equals(key1) || !rememberedKey2.Equals(key2) || !rememberedKey3.Equals(key3) ||
             !rememberedKey4.Equals(key4))
         {
-            ForgetInternal<TKey1>(key1Postfix);
-            GetInternal(key1Postfix, () => key1);
+            ForgetInternal<TKey1>(keyKey1);
+            GetInternal(keyKey1, () => key1);
 
-            ForgetInternal<TKey2>(key2Postfix);
-            GetInternal(key2Postfix, () => key2);
+            ForgetInternal<TKey2>(keyKey2);
+            GetInternal(keyKey2, () => key2);
 
-            ForgetInternal<TKey3>(key3Postfix);
-            GetInternal(key3Postfix, () => key3);
+            ForgetInternal<TKey3>(keyKey3);
+            GetInternal(keyKey3, () => key3);
 
-            ForgetInternal<TKey4>(key4Postfix);
-            GetInternal(key4Postfix, () => key4);
+            ForgetInternal<TKey4>(keyKey4);
+            GetInternal(keyKey4, () => key4);
 
-            ForgetInternal<T>(valuePostfix);
+            ForgetInternal<T>(valueKey);
         }
 
-        return GetInternal(valuePostfix, creator);
+        return GetInternal(valueKey, creator);
     }
 
     [ComposableApi]
     public static ILaunchedEffect LaunchedEffect<TKey>(TKey key, Func<CancellationToken, Task> action)
         where TKey : notnull
     {
-        Composer.Instance.StartGroup();
         var launchedEffect = Get(key, () => new LaunchedEffectAsyncImpl(action));
-        Composer.Instance.EndGroup();
         
         return launchedEffect;
     }
@@ -182,9 +180,7 @@ public static class Remember
     public static ILaunchedEffect LaunchedEffect<TKey>(TKey key, Action action)
         where TKey : notnull
     {
-        Composer.Instance.StartGroup();
         var launchedEffect = Get(key, () => new LaunchedEffectImpl(action));
-        Composer.Instance.EndGroup();
         
         return launchedEffect;
     }

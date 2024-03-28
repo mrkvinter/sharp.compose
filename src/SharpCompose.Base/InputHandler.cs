@@ -68,4 +68,8 @@ public class InputHandler : IInputHandler
     public void SubscribeTextInput(string uniqKey, Action<string> callback) => textInput.Add(uniqKey,callback);
     public void DisposeTextInput(string uniqKey) => textInput.Remove(uniqKey);
     public void SetCursor(Cursor cursor) => changeCursor.Invoke(cursor);
+    public bool Equals(IInputHandler? other)
+    {
+        return other is InputHandler;
+    }
 }

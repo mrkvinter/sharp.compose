@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Reflection;
 using SharpCompose.Base.Layouting;
 using SharpCompose.Base.Modifiers;
 using SharpCompose.Base.Nodes;
@@ -27,8 +29,12 @@ public class Composer
 
     public bool RecomposingAsk { get; private set; }
     public bool Composing { get; private set; }
+    internal bool WaitingInsertGroup => waitingInsertGroup;
+
+    public int CountChangedNodes { get; private set; }
 
     private bool waitingInsertGroup;
+    private long nodeCounter;
 
     //todo: make internal again
     public static void Recompose()
@@ -50,8 +56,6 @@ public class Composer
     public static void Compose(IInputHandler inputHandler, Action content)
     {
         Instance.Composing = true;
-        if (Instance.Root.Changed)
-            Instance.Root.Changed = false;
 
         // We already have root scope, so we shouldn't run StartScope, because we will not have access to remember table
         Instance.Groups.Push(Instance.Root);
@@ -125,7 +129,6 @@ public class Composer
         if (Instance.Composing)
             return;
 
-        Instance.RecomposingAsk = false;
         var (width, height) = Instance.Canvas.Size;
 
         Instance.Root.ClearGraphics();
@@ -180,27 +183,14 @@ public class Composer
         }
 
 
-        var key = ComposeKey.GetKey();
-        var loopPostfix = string.Empty;
-        if (CurrentGroup.CountNodes.TryGetValue(key, out var count))
-        {
-            loopPostfix += count;
-            CurrentGroup.CountNodes[key]++;
-        }
-        else
-        {
-            CurrentGroup.CountNodes.Add(key, 0);
-        }
-
-        var groupNode = Remember.GetInternal(loopPostfix, Creator);
+        var groupNode = Remember.Get(Creator);
 
         waitingInsertGroup = false;
 
         if (groupNode.Parent is IGroupNode groupNodeParent)
+        {
             groupNodeParent.UnusedChildren.Remove(groupNode);
-
-
-        groupNode.SaveUnused();
+        }
 
         Groups.Push(groupNode);
         
@@ -222,9 +212,18 @@ public class Composer
             groupNode.RemoveChild(unusedChild);
             unusedChild.Clear();
         }
+        
+        foreach (var key in groupNode.UnusedRememberedKeys)
+        {
+            if (groupNode.Remembered
+                .TryGetNextRemembered<IRememberObserver>(key, out var result))
+                result.OnForgotten();
+
+            groupNode.Remembered.RemoveRemembered(key);
+        }
     }
 
-    [ComposableApi]
+    [GroupRootComposableApi]
     public void StartNode(IModifier modifier, Measure measure)
     {
         LayoutNode Creator()
@@ -232,7 +231,7 @@ public class Composer
             var createdScope = new LayoutNode(modifier, Canvas.StartGraphics())
             {
                 Name = string.Join(".", modifier.FromInToOut().OfType<DebugModifier>().Select(e => e.ScopeName)),
-                Parent = CurrentGroup
+                Parent = CurrentGroup,
             };
             CurrentGroup.AddChild(createdScope);
 
@@ -244,27 +243,10 @@ public class Composer
                 $"Imposable inserting node while waiting inserting group. Please, call {nameof(StartGroup)} before.");
 
         waitingInsertGroup = true;
-        var key = ComposeKey.GetKey();
-        var loopPostfix = string.Empty;
-        if (CurrentGroup.CountNodes.TryGetValue(key, out var count))
-        {
-            loopPostfix += count;
-            CurrentGroup.CountNodes[key]++;
-        }
-        else
-        {
-            CurrentGroup.CountNodes.Add(key, 0);
-        }
-
-        var layoutNode = Remember.GetInternal(loopPostfix, Creator);
+        var layoutNode = Remember.Get(Creator);
         layoutNode.Measure = measure;
         CurrentGroup.UnusedChildren.Remove(layoutNode);
-
-        if (layoutNode.Changed)
-        {
-            layoutNode.Update(modifier);
-            layoutNode.Changed = false;
-        }
+        layoutNode.Update(modifier);
 
         UINodes.Push(layoutNode);
     }

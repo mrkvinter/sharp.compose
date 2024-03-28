@@ -7,6 +7,8 @@ public class Remembered
 {
     private readonly Dictionary<string, object> remembered = new();
 
+    internal Dictionary<string, object>.KeyCollection Keys => remembered.Keys;
+
     public bool TryGetNextRemembered<T>(string key, [MaybeNullWhen(false)] out T result)
     {
         if (remembered.ContainsKey(key) && remembered[key] is T val)
@@ -68,10 +70,11 @@ public class MutableState<TValue> where TValue : notnull
 
     private static void SetChange(IGroupNode groupNode)
     {
-        foreach (var childGroupNode in groupNode.Nodes)
+        groupNode.Changed = true;
+        foreach (var childGroupNode in groupNode.GroupNodes)
         {
-            childGroupNode.Changed = true;
-            SetChange(childGroupNode.GroupNode);
+            if (childGroupNode.HasExternalState)
+                SetChange(childGroupNode);
         }
     }
 

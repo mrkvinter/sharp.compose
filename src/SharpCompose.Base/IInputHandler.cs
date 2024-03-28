@@ -2,7 +2,7 @@
 
 namespace SharpCompose.Base;
 
-public interface IInputHandler
+public interface IInputHandler : IEquatable<IInputHandler>
 {
     (int x, int y) MousePosition { get; }
 
