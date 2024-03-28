@@ -10,6 +10,7 @@ namespace SharpCompose.Base.ComposesApi;
 
 public static partial class BaseCompose
 {
+    [Composable]
     public static void Text(string text, ScopeModifier? modifier = null, int? size = null, Color? color = default, Font? font = null, TextAlignment? textAlignment = null) =>
         TextElement(text, 
             modifier?.SelfModifier ?? IModifier.Empty,
@@ -21,6 +22,7 @@ public static partial class BaseCompose
             color ?? LocalTextStyle.Value.Color ?? LocalColors.Value.OnStandard,
             textAlignment ?? TextAlignment.Left);
 
+    [Composable]
     private static void TextElement(string text, IModifier modifier, TextStyle textStyle, Color color, TextAlignment textAlignment)
     {
         MeasureResult MeasureText(Measurable[] _, Constraints constraints)
@@ -40,7 +42,7 @@ public static partial class BaseCompose
             modifier
                 .Then(textDrawerModifier)
                 .Then(new DebugModifier {ScopeName = nameof(TextElement)}), MeasureText);
-        Composer.Instance.StartGroup();
+        Composer.Instance.StartGroup(null);
         Composer.Instance.EndGroup();
         Composer.Instance.EndNode();
     }

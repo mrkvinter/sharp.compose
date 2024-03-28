@@ -2,13 +2,22 @@
 
 public interface IGroupNode : INode
 {
-    IEnumerable<LayoutNode> Nodes { get; }
+    IEnumerable<LayoutNode> LayoutNodes { get; }
+    IEnumerable<IGroupNode> GroupNodes { get; }
+    IReadOnlyList<INode> Children { get; }
 
-    Dictionary<int, object> Locals { get; }
+    Dictionary<int, object> Locals { get; set; }
 
     List<INode> UnusedChildren { get; }
 
+    HashSet<string> UnusedRememberedKeys { get; }
+
     Dictionary<string, int> CountNodes { get; }
+
+    Action? Content { get; set; }
+    long Id { get; }
+    bool Changed { get; set; }
+    bool HasExternalState { get; }
 
     void SaveUnused();
 

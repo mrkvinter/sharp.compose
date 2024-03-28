@@ -68,6 +68,58 @@ public class Composer
         Instance.Composing = false;
     }
 
+    [RootComposableApi]
+    public static void RecomposeTree()
+    {
+        Instance.Composing = true;
+        while (Instance.RecomposingAsk)
+        {
+            Instance.RecomposingAsk = false;
+            var changedNodes = new List<IGroupNode>();
+            var nodesToInvestigate = new Stack<IGroupNode>();
+            nodesToInvestigate.Push(Instance.Root);
+            while (nodesToInvestigate.Count > 0)
+            {
+                var node = nodesToInvestigate.Pop();
+                if (node.Changed)
+                {
+                    changedNodes.Add(node);
+                }
+
+                foreach (var child in node.Children)
+                {
+                    switch (child)
+                    {
+                        case IGroupNode groupNode:
+                            nodesToInvestigate.Push(groupNode);
+                            break;
+                        case IUINode uiNode:
+                            nodesToInvestigate.Push(uiNode.GroupNode);
+                            break;
+                    }
+                }
+            }
+
+            Instance.CountChangedNodes = changedNodes.Count;
+            foreach (var changedNode in changedNodes)
+            {
+                if (!changedNode.Changed)
+                    continue;
+
+                Instance.Groups.Push(changedNode);
+                changedNode.Changed = false;
+                changedNode.SaveUnused();
+                changedNode.Content?.Invoke();
+                if (changedNode.Content != null)
+                    Instance.EndGroup();
+                else
+                    Instance.Groups.Pop();
+            }
+        }
+
+        Instance.Composing = false;
+    }
+
     public static void Layout()
     {
         if (Instance.Composing)
@@ -93,10 +145,10 @@ public class Composer
 
     private RootNode CreateRoot()
     {
-        var createdRoot = new RootNode(Canvas.StartGraphics())
+        var createdRoot = new RootNode(Canvas.StartGraphics(), nodeCounter++)
         {
             Name = "Root",
-            Measure = BoxLayout.Measure(new BiasAlignment(-1, -1)),
+            Measure = BoxLayout.Measure(new BiasAlignment(-1, -1))
         };
 
         UINodes.Clear();
@@ -104,15 +156,20 @@ public class Composer
         return createdRoot;
     }
 
-    [ComposableApi]
-    public void StartGroup()
+    [GroupRootComposableApi]
+    public void StartGroup(Action? content, bool changed = true)
     {
         [ComposableApi]
         IGroupNode Creator()
         {
             var createdScope = new GroupNode
             {
-                Parent = waitingInsertGroup ? CurrentUINode : CurrentGroup
+                Parent = waitingInsertGroup ? CurrentUINode : CurrentGroup,
+                Id = nodeCounter++,
+                Changed = changed,
+                Content = content,
+                Locals = CurrentGroup.Locals,
+                HasExternalState = HasExternalState()
             };
             if (waitingInsertGroup)
                 CurrentUINode.GroupNode = createdScope;
@@ -146,6 +203,14 @@ public class Composer
         groupNode.SaveUnused();
 
         Groups.Push(groupNode);
+        
+        if (groupNode.Changed)
+        {
+            groupNode.Changed = false;
+            groupNode.SaveUnused();
+            groupNode.Content = content;
+            content?.Invoke();
+        }
     }
 
     public void EndGroup()
@@ -207,5 +272,49 @@ public class Composer
     public void EndNode()
     {
         UINodes.Pop();
+    }
+
+    /// <summary>
+    /// HasExternalState:
+    /// - if we found method with ComposableAttribute and it has empty parameters, then it has no external state
+    /// - if we found lambda with no captured variables, then it has no external state
+    /// - if we found lambda with captured variables, then it has external state
+    /// </summary>
+    /// <returns>
+    ///     <see langword="true"/> if current node has external state, otherwise <see langword="false"/>
+    /// </returns>
+    private bool HasExternalState()
+    {
+        var stackTrace = new StackTrace();
+        for (int i = 1; i < stackTrace.FrameCount; i++)
+        {
+            var frame = stackTrace.GetFrame(i)!;
+            var method = frame.GetMethod()!;
+
+            if (method.GetCustomAttribute<ComposableApiAttribute>() != null)
+            {
+                continue;
+            }
+
+            if (method.GetCustomAttribute<ComposableAttribute>() != null)
+            {
+                return method.GetParameters().Length != 0;
+            }
+
+            // I don't now better way to check if lambda has captured variables
+            // Closure classes have name like "<>c__DisplayClass0_0"
+            if (method.DeclaringType!.Name.StartsWith("<>c__DisplayClass", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            // No closure classes have name like "<>c."
+            if (method.DeclaringType!.Name.StartsWith("<>c.", StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }

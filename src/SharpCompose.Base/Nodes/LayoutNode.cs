@@ -10,6 +10,8 @@ public class LayoutNode : IUINode
 {
     internal IModifier Modifier { get; private set; }
 
+    internal IModifier[] SqueezeModifiers => Modifier.SqueezeModifiers();
+
     public IGroupNode GroupNode { get; set; } = default!;
 
     public INode? Parent { get; init; }
@@ -34,14 +36,12 @@ public class LayoutNode : IUINode
 
     public string Name { get; internal set; } = "";
 
-    public bool Changed { get; set; }
-
     public Measurable Measurable => GetMeasure();
 
     public void ClearGraphics()
     {
         graphics.Clear();
-        GroupNode.Nodes.ForEach(e => e.ClearGraphics());
+        GroupNode.LayoutNodes.ForEach(e => e.ClearGraphics());
     }
 
     private Measurable GetMeasure()
@@ -49,7 +49,7 @@ public class LayoutNode : IUINode
         var measurable = new Measurable
         {
             Measure = constraints =>
-                Measure(GroupNode.Nodes.Select(x => x.Measurable).ToArray(), constraints)
+                Measure(GroupNode.LayoutNodes.Select(x => x.Measurable).ToArray(), constraints)
         };
 
         var modifiers = Modifier.SqueezeModifiers();
@@ -66,13 +66,13 @@ public class LayoutNode : IUINode
     public void DrawNode(ICanvas canvas)
     {
         canvas.DrawGraphics(0, 0, graphics);
-        GroupNode.Nodes.ForEach(c => c.DrawNode(canvas));
+        GroupNode.LayoutNodes.ForEach(c => c.DrawNode(canvas));
     }
 
     public void Clear()
     {
         GroupNode.Clear();
-        foreach (var node in GroupNode.Nodes)
+        foreach (var node in GroupNode.LayoutNodes)
         {
             node.Clear();
         }
@@ -80,5 +80,5 @@ public class LayoutNode : IUINode
     }
 
     public override string ToString() =>
-        $"{nameof(LayoutNode)} ({Name}) [{string.Join("->", GroupNode.Nodes.Select(e => e.Name))}]";
+        $"{nameof(LayoutNode)} ({Name}) [{string.Join("->", GroupNode.LayoutNodes.Select(e => e.Name))}]";
 }
