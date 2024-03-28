@@ -8,11 +8,6 @@ namespace TestSharpCompose;
 
 public class RememberTests
 {
-    private class TestValue
-    {
-        public int Value { get; set; }
-    }
-
     [Test]
     public void Remember_KeyChanged_PropertyValueOrigin()
     {
@@ -92,6 +87,100 @@ public class RememberTests
         Assert.That(page0Line1, Is.Null);
         Assert.That(page0Line2, Is.Null);
         Assert.That(page1, Is.Not.Null);
+    }
+    
+    [Test]
+    public async Task RememberPage_OpenClose_ZeroPageOpened()
+    {
+        var composeTester = new ComposeTester.ComposeTester(RouterContent);
+
+        await composeTester.RecomposeAsync();
+        composeTester.Root.OnNodeWithId("Button Page 1")!.PerformClick();
+        await composeTester.RecomposeAsync();
+        composeTester.Root.OnNodeWithId("Button Page 0")!.PerformClick();
+        await composeTester.RecomposeAsync();
+        var page0Line1 = composeTester.Root.OnNodeWithText("Page 0 - line 1");
+        var page0Line2 = composeTester.Root.OnNodeWithText("Page 0 - line 2");
+        var page1 = composeTester.Root.OnNodeWithText("Page 1 - line 1");
+
+        Assert.That(page0Line1, Is.Not.Null);
+        Assert.That(page0Line2, Is.Not.Null);
+        Assert.That(page1, Is.Null);
+    }
+    
+    [Test]
+    public async Task Remember_ClickButtonTwice_ClickedTextShouldNotBeVisible()
+    {
+        var layout = [Composable]() =>
+            Column(content: () =>
+            {
+                var clicked = Remember.Get(() => false.AsMutableState());
+                Button(() => clicked.Value = !clicked.Value, "Button", Modifier.Id("Button"));
+                if (clicked.Value)
+                    Text("Clicked");
+                else
+                    Text("Not clicked");
+            });
+        
+        var composeTester = new ComposeTester.ComposeTester(layout);
+        composeTester.Root.OnNodeWithId("Button")!.PerformClick();
+        await composeTester.RecomposeAsync();
+        composeTester.Root.OnNodeWithId("Button")!.PerformClick();
+        await composeTester.RecomposeAsync();
+        var clickedNode = composeTester.Root.OnNodeWithText("Clicked");
+        var notClickedNode = composeTester.Root.OnNodeWithText("Not clicked");
+        
+        Assert.That(clickedNode, Is.Null);
+        Assert.That(notClickedNode, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task Remember_NoClickButton_ClickedTextShouldNotBeVisible()
+    {
+        var layout = [Composable]() =>
+            Column(content: () =>
+            {
+                var clicked = Remember.Get(() => false.AsMutableState());
+                Button(() => clicked.Value = !clicked.Value, "Button", Modifier.Id("Button"));
+                if (clicked.Value)
+                    Text("Clicked");
+                else
+                    Text("Not clicked");
+            });
+
+        
+        var composeTester = new ComposeTester.ComposeTester(layout);
+        await composeTester.RecomposeAsync();
+        var clickedNode = composeTester.Root.OnNodeWithText("Clicked");
+        var notClickedNode = composeTester.Root.OnNodeWithText("Not clicked");
+        
+        Assert.That(clickedNode, Is.Null);
+        Assert.That(notClickedNode, Is.Not.Null);
+    }
+    
+    [Test]
+    public async Task Remember_ClickButton_ClickedTextShouldBeVisible()
+    {
+        var layout = [Composable]() =>
+            Column(content: () =>
+            {
+                var clicked = Remember.Get(() => false.AsMutableState());
+                Button(() => clicked.Value = !clicked.Value, "Button", Modifier.Id("Button"));
+                if (clicked.Value)
+                    Text("Clicked");
+                else
+                    Text("Not clicked");
+            });
+
+        
+        var composeTester = new ComposeTester.ComposeTester(layout);
+        composeTester.Root.OnNodeWithId("Button")!.PerformClick();
+        await composeTester.RecomposeAsync();
+        var clickedNode = composeTester.Root.OnNodeWithText("Clicked");
+        var notClickedNode = composeTester.Root.OnNodeWithText("Not clicked");
+        
+        Assert.That(clickedNode, Is.Not.Null);
+        Assert.That(notClickedNode, Is.Null);
     }
 
     private class Value
@@ -230,23 +319,26 @@ public class RememberTests
     }
 
     [Composable]
-    private static void RouterContent()
+    private static void RouterContent() => Column(content: () =>
     {
-        var page = Remember.Get(() => 0.AsMutableState());
+        {
+            var page = Remember.Get(() => 0.AsMutableState());
 
-        Button(() => page.Value = 0, label: "Button Page 0", Modifier.Id("Button Page 0"));
-        Button(() => page.Value = 1, label: "Button Page 1", Modifier.Id("Button Page 1"));
+            Button(() => page.Value = 0, label: "Button Page 0", Modifier.Id("Button Page 0"));
+            Button(() => page.Value = 1, label: "Button Page 1", Modifier.Id("Button Page 1"));
 
-        Box(content: () =>
-            Box(alignment: Alignment.TopStart, content: page.Value switch
+            Box(content: () =>
             {
-                0 => Page0,
-                1 => Page1,
-                _ => () => { }
-            }));
-    }
+                Box(alignment: Alignment.TopStart, content: () =>
+                {
+                    if (page.Value == 0) Page0();
+                    if (page.Value == 1) Page1();
+                });
+            });
+        }
+    });
 
-    [Composable]
+        [Composable]
     private static void Page0() => Box(content: () =>
     {
         Text("Page 0 - line 1");

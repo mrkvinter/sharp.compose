@@ -122,12 +122,40 @@ public class LaunchedEffectTest
 
         Assert.IsTrue(disposed.Value);
     }
+    
+    [Test]
+    public async Task LaunchedEffect_NoScopedAndNoUsedWrapped_Dispose()
+    {
+        var disposed = false.AsMutableState();
+        var composeTester = new ComposeTester.ComposeTester(() => NotUsedLaunchedEffectWrapped(disposed));
+
+        composeTester.Root.OnNodeWithId("button")?.PerformClick();
+        await composeTester.RecomposeAsync();
+
+        Assert.IsTrue(disposed.Value);
+    }
+    
+    [Test]
+    public async Task LaunchedEffect_NoScopedAndNoUsedWithConstraints_Dispose()
+    {
+        var disposed = false.AsMutableState();
+        var composeTester = new ComposeTester.ComposeTester(() => NotUsedLaunchedEffectWithConstraints(disposed));
+        composeTester.Size = new(150, 50);
+        await composeTester.RecomposeAsync();
+        composeTester.Size = new(50, 50);
+        await composeTester.RecomposeAsync();
+
+        Assert.IsTrue(disposed.Value);
+    }
 
     [Composable]
     private static void FetchData_ScopedState()
     {
         var data = Remember.Get(() => Array.Empty<int>().AsMutableState());
-        Remember.LaunchedEffect(true, async _ => { data.Value = await GetData() ?? Array.Empty<int>(); });
+        Remember.LaunchedEffect(true, async _ =>
+        {
+            data.Value = await GetData() ?? Array.Empty<int>();
+        });
 
         Box(content: () =>
         {
@@ -201,6 +229,32 @@ public class LaunchedEffectTest
         if (!clicked.Value)
             Remember.LaunchedEffect(true, () => {})
                 .OnDispose(() => disposed.Value = true);
+    }
+
+    [Composable]
+    private static void NotUsedLaunchedEffectWrapped(MutableState<bool> disposed)
+    {
+        var clicked = Remember.Get(() => false.AsMutableState());
+
+        Button(() => clicked.Value = true, "click", Modifier.Id("button"));
+
+        if (!clicked.Value)
+            Box(content: () =>
+            {
+                Remember.LaunchedEffect(true, () => { })
+                    .OnDispose(() => disposed.Value = true);
+            });
+    }
+    
+    [Composable]
+    private static void NotUsedLaunchedEffectWithConstraints(MutableState<bool> disposed)
+    {
+        BoxWithConstraints(content: constraints =>
+        {
+            if (constraints.MaxWidth >= 100)
+                Remember.LaunchedEffect(true, () => { })
+                    .OnDispose(() => disposed.Value = true);
+        });
     }
 
     private static async Task<int[]?> GetData()

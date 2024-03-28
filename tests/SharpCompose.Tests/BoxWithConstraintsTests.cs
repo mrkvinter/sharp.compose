@@ -53,7 +53,7 @@ public class BoxWithConstraintsTests
         await composeTester.RecomposeAsync();
         composeTester.Size = new IntSize(300, 100);
         await composeTester.RecomposeAsync();
-        var smallContentNode = composeTester.Root.OnNodeWithText("Small content test-text")!;
+        var smallContentNode = composeTester.Root.OnNodeWithModifier<TextDrawModifier>(e => e.Text =="Small content test-text")!;
         var largeContentNode = composeTester.Root.OnNodeWithText("Large content test-text");
         var textDrawModifier = (TextDrawModifier) smallContentNode.LayoutNode.Modifier
             .SqueezeModifiers().First(e => e is TextDrawModifier);
@@ -72,7 +72,7 @@ public class BoxWithConstraintsTests
         composeTester.Size = new IntSize(300, 100);
         composeTester.Root.OnNodeWithId("ChangeThemeButton")!.PerformClick();
         await composeTester.RecomposeAsync();
-        var smallContentNode = composeTester.Root.OnNodeWithText("Small content test-text")!;
+        var smallContentNode = composeTester.Root.OnNodeWithModifier<TextDrawModifier>(e => e.Text =="Small content test-text")!;
         var largeContentNode = composeTester.Root.OnNodeWithText("Large content test-text");
         var textDrawModifier = (TextDrawModifier) smallContentNode.LayoutNode.Modifier
             .SqueezeModifiers().First(e => e is TextDrawModifier);
@@ -112,11 +112,10 @@ public class BoxWithConstraintsTests
         var isLight = Remember.Get(() => true.AsMutableState());
         var darkTheme = new Colors(Color.Navy, Color.White, Color.Black, Color.White, Color.Black);
         var lightTheme = new Colors(Color.Aqua, Color.Black, Color.White, Color.Black, Color.White);
-        var colors = isLight.Value ? lightTheme : darkTheme;
         CompositionLocalProvider(new[]
         {
             LocalTestTextProvider.Provide("test-text"),
-            LocalColors.Provide(colors)
+            LocalColors.Provide(isLight.Value ? lightTheme : darkTheme)
         }, content: () => Box(Modifier.BackgroundColor(LocalColors.Value.Background), content: () =>
         {
             Button(() => isLight.Value = !isLight.Value, "Change Theme", Modifier.Id("ChangeThemeButton"));

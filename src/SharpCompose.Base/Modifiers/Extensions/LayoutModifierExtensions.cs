@@ -52,10 +52,4 @@ public static class LayoutModifierExtensions
             {
                 MatchParentWidth = true, MatchParentHeight = true
             }));
-    
-    public static T Then<T>(this T self, ScopeModifier scopeModifier) where T : IScopeModifier<T>
-        => self.Then(scopeModifier.SelfModifier);
-    
-    public static T Then<T>(this T self, IModifier modifier) where T : IScopeModifier<T>
-        => self.Then(modifier);
 }

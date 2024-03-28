@@ -23,12 +23,8 @@ public class ComposeTester
         }
     }
 
-    private readonly Action setContent;
-
-
     public ComposeTester(Action setContent)
     {
-        this.setContent = setContent;
         var canvas = A.Fake<ICanvas>();
         inputHandler = new InputHandler(SetCursor);
         A.CallTo(() => canvas.Size).ReturnsLazily(() => Size);
@@ -37,6 +33,7 @@ public class ComposeTester
         Composer.Instance.Init(canvas);
         Composer.Compose(inputHandler, setContent);
         Composer.Layout();
+        Composer.Draw();
     }
 
     public async Task RecomposeAsync(bool forceRecompose = false)
@@ -44,7 +41,7 @@ public class ComposeTester
         while (Composer.Instance.RecomposingAsk || forceRecompose)
         {
             forceRecompose = false;
-            Composer.Compose(inputHandler, setContent);
+            Composer.RecomposeTree();
             Composer.Layout();
 
             await Task.Yield();

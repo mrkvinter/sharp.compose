@@ -15,9 +15,13 @@ public class HasTextNodeMatcher : INodeMatcher
 
     public bool Match(LayoutNode layoutNode)
     {
-        return layoutNode.Modifier
-            .SqueezeModifiers()
-            .Any(m => m is TextDrawModifier textDrawModifier &&
-                      (textToMatch == null || textToMatch == textDrawModifier.Text));
+        foreach (var node in layoutNode.GroupNode.LayoutNodes)
+        {
+            if (node.SqueezeModifiers.Any(m => m is TextDrawModifier textDrawModifier &&
+                                               (textToMatch == null || textToMatch == textDrawModifier.Text)))
+                return true;
+        }
+
+        return false;
     }
 }
